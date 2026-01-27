@@ -1,0 +1,14 @@
+<div class="flex items-center justify-between mb-3">
+    <div class="flex items-center gap-2">
+        <i data-lucide="bot" class="w-4 h-4 text-nexus-accent"></i>
+        <h2 class="text-sm font-semibold text-white">Son of Anton</h2>
+        <span class="px-2 py-0.5 rounded-full text-[10px] font-mono animate-pulse"
+              style="background: rgba(0,212,170,0.1); color: #00D4AA;">live</span>
+    </div>
+    <i data-lucide="terminal" class="w-4 h-4 text-nexus-muted"></i>
+</div>
+<pre id="clawdbot-log-pre"
+     class="text-[11px] font-mono text-gray-400 bg-nexus-tile border border-nexus-tile-border rounded-tile p-3 overflow-auto max-h-[300px] whitespace-pre-wrap break-all leading-relaxed">{{ logs }}</pre>
+<script>
+(function(){ var el = document.getElementById('clawdbot-log-pre'); if(el) el.scrollTop = el.scrollHeight; })();
+</script>

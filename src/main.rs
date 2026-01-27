@@ -136,6 +136,52 @@ async fn htmx_datetime(data: web::Data<AppState>) -> HttpResponse {
     }
 }
 
+/// HTMX partial: clawdbot live logs
+async fn htmx_clawdbot_logs(data: web::Data<AppState>) -> HttpResponse {
+    let today = chrono::Local::now().format("%Y-%m-%d").to_string();
+    let log_path = format!("/tmp/clawdbot/clawdbot-{}.log", today);
+
+    let content = match tokio::fs::read_to_string(&log_path).await {
+        Ok(text) => {
+            // Take last 80 lines
+            let lines: Vec<&str> = text.lines().collect();
+            let start = if lines.len() > 80 { lines.len() - 80 } else { 0 };
+            lines[start..].join("\n")
+        }
+        Err(_) => "No logs found for today.".to_string(),
+    };
+
+    let escaped = content
+        .replace('&', "&amp;")
+        .replace('<', "&lt;")
+        .replace('>', "&gt;");
+
+    let mut ctx = tera::Context::new();
+    ctx.insert("logs", &escaped);
+
+    match data.tera.render("partials/clawdbot-logs.html", &ctx) {
+        Ok(body) => HttpResponse::Ok().content_type("text/html").body(body),
+        Err(_) => {
+            // Fallback inline render
+            let html = format!(
+                r#"<div class="flex items-center justify-between mb-3">
+    <div class="flex items-center gap-2">
+        <h2 class="text-sm font-semibold text-white">Son of Anton</h2>
+        <span class="px-2 py-0.5 rounded-full text-[10px] font-mono" style="background: rgba(0,212,170,0.1); color: #00D4AA;">live</span>
+    </div>
+    <i data-lucide="terminal" class="w-4 h-4 text-nexus-muted"></i>
+</div>
+<pre id="clawdbot-log-pre" class="text-[11px] font-mono text-gray-400 bg-nexus-tile border border-nexus-tile-border rounded-tile p-3 overflow-auto max-h-[300px] whitespace-pre-wrap break-all leading-relaxed">{}</pre>
+<script>
+(function(){{ var el = document.getElementById('clawdbot-log-pre'); if(el) el.scrollTop = el.scrollHeight; }})();
+</script>"#,
+                escaped
+            );
+            HttpResponse::Ok().content_type("text/html").body(html)
+        }
+    }
+}
+
 /// HTMX partial: container logs in modal
 async fn htmx_logs(data: web::Data<AppState>, path: web::Path<String>) -> HttpResponse {
     let container = path.into_inner();
@@ -238,6 +284,7 @@ async fn main() -> std::io::Result<()> {
             .route("/htmx/datetime", web::get().to(htmx_datetime))
             .route("/htmx/activity", web::get().to(htmx_activity))
             .route("/htmx/logs/{container}", web::get().to(htmx_logs))
+            .route("/htmx/clawdbot-logs", web::get().to(htmx_clawdbot_logs))
     })
     .bind(format!("0.0.0.0:{}", port))?
     .run()

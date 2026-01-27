@@ -203,16 +203,30 @@
             </div>
         </div>
 
-        <!-- Row 3: Storage -->
-        <div class="bg-nexus-card border border-nexus-card-border rounded-card p-5"
-             id="storage-card"
-             hx-get="/htmx/storage"
-             hx-trigger="every 60s"
-             hx-swap="innerHTML">
-            <div class="flex items-center justify-between mb-4">
-                <h2 class="text-sm font-semibold text-white">Storage</h2>
+        <!-- Row 3: Storage + Clawdbot Logs -->
+        <div class="flex gap-5">
+            <div class="w-[400px] shrink-0 bg-nexus-card border border-nexus-card-border rounded-card p-5"
+                 id="storage-card"
+                 hx-get="/htmx/storage"
+                 hx-trigger="every 60s"
+                 hx-swap="innerHTML">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-sm font-semibold text-white">Storage</h2>
+                </div>
+                <p class="text-xs text-nexus-muted">Loading...</p>
             </div>
-            <p class="text-xs text-nexus-muted">Loading...</p>
+
+            <!-- Clawdbot Live Logs -->
+            <div class="flex-1 bg-nexus-card border border-nexus-card-border rounded-card p-5"
+                 id="clawdbot-logs-card"
+                 hx-get="/htmx/clawdbot-logs"
+                 hx-trigger="load, every 10s"
+                 hx-swap="innerHTML">
+                <div class="flex items-center justify-between mb-3">
+                    <h2 class="text-sm font-semibold text-white">Son of Anton</h2>
+                </div>
+                <p class="text-xs text-nexus-muted">Loading logs...</p>
+            </div>
         </div>
     </main>
 
