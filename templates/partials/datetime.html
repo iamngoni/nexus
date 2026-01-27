@@ -1,6 +1,7 @@
-<span class="text-sm text-gray-400">{{ greeting }}, <span class="text-white font-medium">{{ user_name }}</span></span>
-<span class="text-sm font-mono text-nexus-muted">{{ date }} — {{ time }}</span>
-<button class="relative p-2 rounded-lg hover:bg-nexus-tile transition-colors">
+<span class="hidden md:inline text-sm text-gray-400">{{ greeting }}, <span class="text-white font-medium">{{ user_name }}</span></span>
+<span class="text-xs md:text-sm font-mono text-nexus-muted">{{ time }}</span>
+<span class="hidden sm:inline text-xs md:text-sm font-mono text-nexus-muted">{{ date }}</span>
+<button class="relative p-1.5 md:p-2 rounded-lg hover:bg-nexus-tile transition-colors">
     <i data-lucide="bell" class="w-4 h-4 text-nexus-muted"></i>
-    <span class="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-nexus-accent"></span>
+    <span class="absolute top-1 right-1 md:top-1.5 md:right-1.5 w-1.5 h-1.5 rounded-full bg-nexus-accent"></span>
 </button>

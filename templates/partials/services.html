@@ -10,8 +10,8 @@
     <span class="text-xs text-nexus-muted font-mono">{{ total_count }} total</span>
 </div>
 
-<!-- 4-column grid -->
-<div class="grid grid-cols-4 gap-3">
+<!-- Responsive grid: 3 cols mobile, 4 cols desktop -->
+<div class="grid grid-cols-3 md:grid-cols-4 gap-2 md:gap-3">
     {% for svc in services %}
     <div class="service-tile relative bg-nexus-tile border border-nexus-tile-border rounded-tile p-3 flex flex-col items-center gap-2 group">
         <!-- Icon -->

@@ -46,6 +46,12 @@
         body {
             background: #0A0A0F;
             font-family: 'Inter', system-ui, sans-serif;
+            overflow-x: hidden;
+        }
+        /* Prevent horizontal overflow on mobile */
+        main, .bg-nexus-card {
+            max-width: 100%;
+            overflow-x: hidden;
         }
         .font-mono {
             font-family: 'DM Mono', monospace;
@@ -120,18 +126,18 @@
 <body class="min-h-screen text-gray-200">
 
     <!-- Top Navigation -->
-    <nav class="bg-[#0E0E14] border-b border-nexus-card-border px-6 py-3.5 flex items-center justify-between">
-        <div class="flex items-center gap-3">
+    <nav class="bg-[#0E0E14] border-b border-nexus-card-border px-4 md:px-6 py-3 md:py-3.5 flex items-center justify-between">
+        <div class="flex items-center gap-2 md:gap-3">
             <!-- Logo -->
-            <div class="w-9 h-9 rounded-lg flex items-center justify-center font-mono font-bold text-lg"
+            <div class="w-8 h-8 md:w-9 md:h-9 rounded-lg flex items-center justify-center font-mono font-bold text-base md:text-lg"
                  style="background: linear-gradient(135deg, #00D4AA, #0891B2);">
                 N
             </div>
-            <span class="font-mono text-sm font-medium text-white tracking-[4px] uppercase">NEXUS</span>
+            <span class="font-mono text-xs md:text-sm font-medium text-white tracking-[3px] md:tracking-[4px] uppercase">NEXUS</span>
         </div>
 
         <!-- Right: Greeting + DateTime + Bell -->
-        <div class="flex items-center gap-6"
+        <div class="flex items-center gap-3 md:gap-6"
              id="datetime-area"
              hx-get="/htmx/datetime"
              hx-trigger="every 30s"
@@ -141,12 +147,11 @@
     </nav>
 
     <!-- Main Dashboard -->
-    <main class="p-5 space-y-5">
+    <main class="p-3 md:p-5">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-3 md:gap-5">
 
-        <!-- Row 1: Services + System Vitals -->
-        <div class="flex gap-5">
-            <!-- Services Grid Card -->
-            <div class="flex-1 bg-nexus-card border border-nexus-card-border rounded-card p-5"
+            <!-- Services (wider on desktop) -->
+            <div class="lg:col-span-3 bg-nexus-card border border-nexus-card-border rounded-card p-4 md:p-5"
                  id="services-card"
                  hx-get="/htmx/services"
                  hx-trigger="every 30s"
@@ -154,20 +159,17 @@
                 {% include "partials/services.html" %}
             </div>
 
-            <!-- System Vitals Card -->
-            <div class="w-[520px] shrink-0 bg-nexus-card border border-nexus-card-border rounded-card p-5"
+            <!-- System Vitals -->
+            <div class="lg:col-span-3 bg-nexus-card border border-nexus-card-border rounded-card p-4 md:p-5"
                  id="vitals-card"
                  hx-get="/htmx/vitals"
                  hx-trigger="every 10s"
                  hx-swap="innerHTML">
                 {% include "partials/vitals.html" %}
             </div>
-        </div>
 
-        <!-- Row 2: Downloads + Media Queue + Upcoming -->
-        <div class="flex gap-5">
-            <!-- Downloads Card -->
-            <div class="w-[380px] shrink-0 bg-nexus-card border border-nexus-card-border rounded-card p-5"
+            <!-- Downloads -->
+            <div class="lg:col-span-2 bg-nexus-card border border-nexus-card-border rounded-card p-4 md:p-5"
                  id="downloads-card"
                  hx-get="/htmx/downloads"
                  hx-trigger="every 15s"
@@ -178,8 +180,8 @@
                 <p class="text-xs text-nexus-muted">Loading...</p>
             </div>
 
-            <!-- Media Queue Card -->
-            <div class="flex-1 bg-nexus-card border border-nexus-card-border rounded-card p-5"
+            <!-- Media Queue -->
+            <div class="lg:col-span-2 bg-nexus-card border border-nexus-card-border rounded-card p-4 md:p-5"
                  id="media-queue-card"
                  hx-get="/htmx/media-queue"
                  hx-trigger="load, every 30s"
@@ -190,8 +192,8 @@
                 <p class="text-xs text-nexus-muted">Loading...</p>
             </div>
 
-            <!-- Upcoming Releases Card -->
-            <div class="w-[380px] shrink-0 bg-nexus-card border border-nexus-card-border rounded-card p-5"
+            <!-- Upcoming Releases -->
+            <div class="lg:col-span-2 bg-nexus-card border border-nexus-card-border rounded-card p-4 md:p-5"
                  id="upcoming-card"
                  hx-get="/htmx/upcoming"
                  hx-trigger="load, every 600s"
@@ -201,12 +203,9 @@
                 </div>
                 <p class="text-xs text-nexus-muted">Loading...</p>
             </div>
-        </div>
 
-        <!-- Row 3: Media Stats + Recently Added + Weather -->
-        <div class="flex gap-5">
-            <!-- Media Library Stats Card -->
-            <div class="w-[280px] shrink-0 bg-nexus-card border border-nexus-card-border rounded-card p-5"
+            <!-- Media Library Stats -->
+            <div class="lg:col-span-2 bg-nexus-card border border-nexus-card-border rounded-card p-4 md:p-5"
                  id="media-stats-card"
                  hx-get="/htmx/media-stats"
                  hx-trigger="load, every 300s"
@@ -217,8 +216,8 @@
                 <p class="text-xs text-nexus-muted">Loading...</p>
             </div>
 
-            <!-- Recently Added Card -->
-            <div class="flex-1 bg-nexus-card border border-nexus-card-border rounded-card p-5"
+            <!-- Recently Added -->
+            <div class="lg:col-span-2 bg-nexus-card border border-nexus-card-border rounded-card p-4 md:p-5"
                  id="recently-added-card"
                  hx-get="/htmx/recently-added"
                  hx-trigger="load, every 300s"
@@ -229,8 +228,8 @@
                 <p class="text-xs text-nexus-muted">Loading...</p>
             </div>
 
-            <!-- Weather Card -->
-            <div class="w-[260px] shrink-0 bg-nexus-card border border-nexus-card-border rounded-card p-5"
+            <!-- Weather -->
+            <div class="lg:col-span-2 bg-nexus-card border border-nexus-card-border rounded-card p-4 md:p-5"
                  id="weather-card"
                  hx-get="/htmx/weather"
                  hx-trigger="load, every 600s"
@@ -240,12 +239,9 @@
                 </div>
                 <p class="text-xs text-nexus-muted">Loading...</p>
             </div>
-        </div>
 
-        <!-- Row 4: Container Resources + Quick Actions + Speedtest -->
-        <div class="flex gap-5">
-            <!-- Container Resources Card -->
-            <div class="flex-1 bg-nexus-card border border-nexus-card-border rounded-card p-5"
+            <!-- Container Resources -->
+            <div class="lg:col-span-2 bg-nexus-card border border-nexus-card-border rounded-card p-4 md:p-5"
                  id="container-resources-card"
                  hx-get="/htmx/container-resources"
                  hx-trigger="load, every 30s"
@@ -256,14 +252,14 @@
                 <p class="text-xs text-nexus-muted">Loading...</p>
             </div>
 
-            <!-- Quick Actions Card -->
-            <div class="w-[280px] shrink-0 bg-nexus-card border border-nexus-card-border rounded-card p-5"
+            <!-- Quick Actions -->
+            <div class="lg:col-span-2 bg-nexus-card border border-nexus-card-border rounded-card p-4 md:p-5"
                  id="quick-actions-card">
                 {% include "partials/quick-actions.html" %}
             </div>
 
-            <!-- Speedtest Card -->
-            <div class="w-[260px] shrink-0 bg-nexus-card border border-nexus-card-border rounded-card p-5"
+            <!-- Speedtest -->
+            <div class="lg:col-span-2 bg-nexus-card border border-nexus-card-border rounded-card p-4 md:p-5"
                  id="speedtest-card"
                  hx-get="/htmx/speedtest"
                  hx-trigger="load, every 300s"
@@ -273,12 +269,9 @@
                 </div>
                 <p class="text-xs text-nexus-muted">Loading...</p>
             </div>
-        </div>
 
-        <!-- Row 5: Storage + System Journal + Clawdbot Logs -->
-        <div class="flex gap-5">
-            <!-- Storage Card -->
-            <div class="w-[360px] shrink-0 bg-nexus-card border border-nexus-card-border rounded-card p-5"
+            <!-- Storage -->
+            <div class="lg:col-span-2 bg-nexus-card border border-nexus-card-border rounded-card p-4 md:p-5"
                  id="storage-card"
                  hx-get="/htmx/storage"
                  hx-trigger="every 60s"
@@ -289,8 +282,8 @@
                 <p class="text-xs text-nexus-muted">Loading...</p>
             </div>
 
-            <!-- System Journal Card -->
-            <div class="flex-1 bg-nexus-card border border-nexus-card-border rounded-card p-5"
+            <!-- System Journal -->
+            <div class="lg:col-span-4 bg-nexus-card border border-nexus-card-border rounded-card p-4 md:p-5"
                  id="journal-card"
                  hx-get="/htmx/journal"
                  hx-trigger="load, every 60s"
@@ -300,12 +293,9 @@
                 </div>
                 <p class="text-xs text-nexus-muted">Loading...</p>
             </div>
-        </div>
 
-        <!-- Row 6: Clawdbot Logs (full width) -->
-        <div class="flex gap-5">
-            <!-- Clawdbot Live Logs -->
-            <div class="flex-1 bg-nexus-card border border-nexus-card-border rounded-card p-5"
+            <!-- Clawdbot Live Logs (full width) -->
+            <div class="md:col-span-2 lg:col-span-6 bg-nexus-card border border-nexus-card-border rounded-card p-4 md:p-5"
                  id="clawdbot-logs-card"
                  hx-get="/htmx/clawdbot-logs"
                  hx-trigger="load, every 10s"
@@ -325,7 +315,7 @@
              onclick="document.getElementById('log-modal').classList.add('hidden')"></div>
         <!-- Modal content -->
         <div id="log-modal-content"
-             class="relative z-10 w-[90vw] max-w-[900px] max-h-[80vh] bg-nexus-card border border-nexus-card-border rounded-card p-5 overflow-hidden">
+             class="relative z-10 w-[95vw] md:w-[90vw] max-w-[900px] max-h-[85vh] md:max-h-[80vh] bg-nexus-card border border-nexus-card-border rounded-card p-3 md:p-5 overflow-hidden">
             <p class="text-xs text-nexus-muted">Loading logs...</p>
         </div>
     </div>
