@@ -164,7 +164,7 @@
             </div>
         </div>
 
-        <!-- Row 2: Downloads + Weather + Activity -->
+        <!-- Row 2: Downloads + Media Queue + Upcoming -->
         <div class="flex gap-5">
             <!-- Downloads Card -->
             <div class="w-[380px] shrink-0 bg-nexus-card border border-nexus-card-border rounded-card p-5"
@@ -174,6 +174,57 @@
                  hx-swap="innerHTML">
                 <div class="flex items-center justify-between mb-4">
                     <h2 class="text-sm font-semibold text-white">Downloads</h2>
+                </div>
+                <p class="text-xs text-nexus-muted">Loading...</p>
+            </div>
+
+            <!-- Media Queue Card -->
+            <div class="flex-1 bg-nexus-card border border-nexus-card-border rounded-card p-5"
+                 id="media-queue-card"
+                 hx-get="/htmx/media-queue"
+                 hx-trigger="load, every 30s"
+                 hx-swap="innerHTML">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-sm font-semibold text-white">Media Queue</h2>
+                </div>
+                <p class="text-xs text-nexus-muted">Loading...</p>
+            </div>
+
+            <!-- Upcoming Releases Card -->
+            <div class="w-[380px] shrink-0 bg-nexus-card border border-nexus-card-border rounded-card p-5"
+                 id="upcoming-card"
+                 hx-get="/htmx/upcoming"
+                 hx-trigger="load, every 600s"
+                 hx-swap="innerHTML">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-sm font-semibold text-white">Upcoming</h2>
+                </div>
+                <p class="text-xs text-nexus-muted">Loading...</p>
+            </div>
+        </div>
+
+        <!-- Row 3: Media Stats + Recently Added + Weather -->
+        <div class="flex gap-5">
+            <!-- Media Library Stats Card -->
+            <div class="w-[280px] shrink-0 bg-nexus-card border border-nexus-card-border rounded-card p-5"
+                 id="media-stats-card"
+                 hx-get="/htmx/media-stats"
+                 hx-trigger="load, every 300s"
+                 hx-swap="innerHTML">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-sm font-semibold text-white">Media Library</h2>
+                </div>
+                <p class="text-xs text-nexus-muted">Loading...</p>
+            </div>
+
+            <!-- Recently Added Card -->
+            <div class="flex-1 bg-nexus-card border border-nexus-card-border rounded-card p-5"
+                 id="recently-added-card"
+                 hx-get="/htmx/recently-added"
+                 hx-trigger="load, every 300s"
+                 hx-swap="innerHTML">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-sm font-semibold text-white">Recently Added</h2>
                 </div>
                 <p class="text-xs text-nexus-muted">Loading...</p>
             </div>
@@ -189,23 +240,45 @@
                 </div>
                 <p class="text-xs text-nexus-muted">Loading...</p>
             </div>
+        </div>
 
-            <!-- Activity Feed -->
+        <!-- Row 4: Container Resources + Quick Actions + Speedtest -->
+        <div class="flex gap-5">
+            <!-- Container Resources Card -->
             <div class="flex-1 bg-nexus-card border border-nexus-card-border rounded-card p-5"
-                 id="activity-card"
-                 hx-get="/htmx/activity"
-                 hx-trigger="every 30s"
+                 id="container-resources-card"
+                 hx-get="/htmx/container-resources"
+                 hx-trigger="load, every 30s"
                  hx-swap="innerHTML">
                 <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-sm font-semibold text-white">Activity</h2>
+                    <h2 class="text-sm font-semibold text-white">Container Resources</h2>
+                </div>
+                <p class="text-xs text-nexus-muted">Loading...</p>
+            </div>
+
+            <!-- Quick Actions Card -->
+            <div class="w-[280px] shrink-0 bg-nexus-card border border-nexus-card-border rounded-card p-5"
+                 id="quick-actions-card">
+                {% include "partials/quick-actions.html" %}
+            </div>
+
+            <!-- Speedtest Card -->
+            <div class="w-[260px] shrink-0 bg-nexus-card border border-nexus-card-border rounded-card p-5"
+                 id="speedtest-card"
+                 hx-get="/htmx/speedtest"
+                 hx-trigger="load, every 300s"
+                 hx-swap="innerHTML">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-sm font-semibold text-white">Speedtest</h2>
                 </div>
                 <p class="text-xs text-nexus-muted">Loading...</p>
             </div>
         </div>
 
-        <!-- Row 3: Storage + Clawdbot Logs -->
+        <!-- Row 5: Storage + System Journal + Clawdbot Logs -->
         <div class="flex gap-5">
-            <div class="w-[400px] shrink-0 bg-nexus-card border border-nexus-card-border rounded-card p-5"
+            <!-- Storage Card -->
+            <div class="w-[360px] shrink-0 bg-nexus-card border border-nexus-card-border rounded-card p-5"
                  id="storage-card"
                  hx-get="/htmx/storage"
                  hx-trigger="every 60s"
@@ -216,6 +289,21 @@
                 <p class="text-xs text-nexus-muted">Loading...</p>
             </div>
 
+            <!-- System Journal Card -->
+            <div class="flex-1 bg-nexus-card border border-nexus-card-border rounded-card p-5"
+                 id="journal-card"
+                 hx-get="/htmx/journal"
+                 hx-trigger="load, every 60s"
+                 hx-swap="innerHTML">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-sm font-semibold text-white">System Journal</h2>
+                </div>
+                <p class="text-xs text-nexus-muted">Loading...</p>
+            </div>
+        </div>
+
+        <!-- Row 6: Clawdbot Logs (full width) -->
+        <div class="flex gap-5">
             <!-- Clawdbot Live Logs -->
             <div class="flex-1 bg-nexus-card border border-nexus-card-border rounded-card p-5"
                  id="clawdbot-logs-card"

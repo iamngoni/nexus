@@ -1,0 +1,50 @@
+<!-- Header -->
+<div class="flex items-center justify-between mb-4">
+    <div class="flex items-center gap-3">
+        <h2 class="text-sm font-semibold text-white">Container Resources</h2>
+        <span class="px-2.5 py-0.5 rounded-full text-xs font-medium font-mono"
+              style="background: rgba(0,212,170,0.1); color: #00D4AA;">
+            {{ resources.containers | length }} containers
+        </span>
+    </div>
+    <i data-lucide="container" class="w-4 h-4 text-nexus-muted"></i>
+</div>
+
+<!-- Container list -->
+<div class="space-y-2.5 max-h-[300px] overflow-y-auto custom-scroll pr-1">
+    {% for c in resources.containers %}
+    <div class="bg-nexus-tile border border-nexus-tile-border rounded-tile p-2.5">
+        <div class="flex items-center justify-between mb-1.5">
+            <span class="text-xs text-gray-300 font-medium truncate max-w-[140px]" title="{{ c.name }}">{{ c.name }}</span>
+            <div class="flex items-center gap-3">
+                <span class="font-mono text-[10px] text-nexus-muted">{{ c.mem_usage }}</span>
+            </div>
+        </div>
+        <!-- CPU bar -->
+        <div class="flex items-center gap-2 mb-1">
+            <span class="text-[9px] text-nexus-muted w-6 shrink-0">CPU</span>
+            <div class="flex-1 h-1.5 bg-nexus-tile-border rounded-full overflow-hidden">
+                <div class="h-full rounded-full transition-all duration-500 progress-teal"
+                     style="width: {{ c.cpu_percent | round(method="ceil", precision=0) }}%"></div>
+            </div>
+            <span class="font-mono text-[10px] text-nexus-accent w-10 text-right shrink-0">{{ c.cpu_percent | round(method="ceil", precision=1) }}%</span>
+        </div>
+        <!-- Memory bar -->
+        <div class="flex items-center gap-2">
+            <span class="text-[9px] text-nexus-muted w-6 shrink-0">MEM</span>
+            <div class="flex-1 h-1.5 bg-nexus-tile-border rounded-full overflow-hidden">
+                <div class="h-full rounded-full transition-all duration-500 progress-purple"
+                     style="width: {{ c.mem_percent | round(method="ceil", precision=0) }}%"></div>
+            </div>
+            <span class="font-mono text-[10px] text-nexus-secondary w-10 text-right shrink-0">{{ c.mem_percent | round(method="ceil", precision=1) }}%</span>
+        </div>
+    </div>
+    {% endfor %}
+
+    {% if resources.containers | length == 0 %}
+    <div class="flex flex-col items-center justify-center py-6 text-nexus-muted">
+        <i data-lucide="server-off" class="w-6 h-6 mb-2"></i>
+        <span class="text-xs">No container data</span>
+    </div>
+    {% endif %}
+</div>

@@ -2,3 +2,8 @@ pub mod health;
 pub mod system;
 pub mod downloads;
 pub mod weather;
+pub mod jellyfin;
+pub mod arr;
+pub mod speedtest;
+pub mod containers;
+pub mod journal;

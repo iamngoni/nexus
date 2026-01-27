@@ -307,6 +307,203 @@ async fn htmx_activity(data: web::Data<AppState>) -> HttpResponse {
     }
 }
 
+// ─── New HTMX partials ──────────────────────────────────────────────────────
+
+/// HTMX partial: media library stats (Jellyfin)
+async fn htmx_media_stats(data: web::Data<AppState>) -> HttpResponse {
+    let stats = services::jellyfin::get_media_stats().await;
+    let mut ctx = tera::Context::new();
+    ctx.insert("stats", &stats);
+
+    match data.tera.render("partials/media-stats.html", &ctx) {
+        Ok(body) => HttpResponse::Ok().content_type("text/html").body(body),
+        Err(e) => HttpResponse::InternalServerError().body(format!("Partial error: {}", e)),
+    }
+}
+
+/// HTMX partial: Sonarr/Radarr queue
+async fn htmx_media_queue(data: web::Data<AppState>) -> HttpResponse {
+    let queue = services::arr::get_media_queue().await;
+    let mut ctx = tera::Context::new();
+    ctx.insert("queue", &queue);
+
+    match data.tera.render("partials/media-queue.html", &ctx) {
+        Ok(body) => HttpResponse::Ok().content_type("text/html").body(body),
+        Err(e) => HttpResponse::InternalServerError().body(format!("Partial error: {}", e)),
+    }
+}
+
+/// HTMX partial: upcoming releases
+async fn htmx_upcoming(data: web::Data<AppState>) -> HttpResponse {
+    let upcoming = services::arr::get_upcoming().await;
+    let mut ctx = tera::Context::new();
+    ctx.insert("upcoming", &upcoming);
+
+    match data.tera.render("partials/upcoming.html", &ctx) {
+        Ok(body) => HttpResponse::Ok().content_type("text/html").body(body),
+        Err(e) => HttpResponse::InternalServerError().body(format!("Partial error: {}", e)),
+    }
+}
+
+/// HTMX partial: speedtest results
+async fn htmx_speedtest(data: web::Data<AppState>) -> HttpResponse {
+    let speedtest = services::speedtest::get_speedtest().await;
+    let mut ctx = tera::Context::new();
+    ctx.insert("speedtest", &speedtest);
+
+    match data.tera.render("partials/speedtest.html", &ctx) {
+        Ok(body) => HttpResponse::Ok().content_type("text/html").body(body),
+        Err(e) => HttpResponse::InternalServerError().body(format!("Partial error: {}", e)),
+    }
+}
+
+/// HTMX partial: container resource usage
+async fn htmx_container_resources(data: web::Data<AppState>) -> HttpResponse {
+    let resources = services::containers::get_container_resources().await;
+    let mut ctx = tera::Context::new();
+    ctx.insert("resources", &resources);
+
+    match data.tera.render("partials/container-resources.html", &ctx) {
+        Ok(body) => HttpResponse::Ok().content_type("text/html").body(body),
+        Err(e) => HttpResponse::InternalServerError().body(format!("Partial error: {}", e)),
+    }
+}
+
+/// HTMX partial: recently added to Jellyfin
+async fn htmx_recently_added(data: web::Data<AppState>) -> HttpResponse {
+    let recent = services::jellyfin::get_recently_added().await;
+    let mut ctx = tera::Context::new();
+    ctx.insert("recent", &recent);
+
+    match data.tera.render("partials/recently-added.html", &ctx) {
+        Ok(body) => HttpResponse::Ok().content_type("text/html").body(body),
+        Err(e) => HttpResponse::InternalServerError().body(format!("Partial error: {}", e)),
+    }
+}
+
+/// HTMX partial: system journal errors
+async fn htmx_journal(data: web::Data<AppState>) -> HttpResponse {
+    let journal = services::journal::get_journal().await;
+    let mut ctx = tera::Context::new();
+    ctx.insert("journal", &journal);
+
+    match data.tera.render("partials/journal.html", &ctx) {
+        Ok(body) => HttpResponse::Ok().content_type("text/html").body(body),
+        Err(e) => HttpResponse::InternalServerError().body(format!("Partial error: {}", e)),
+    }
+}
+
+// ─── Quick Actions ──────────────────────────────────────────────────────────
+
+/// Allowed containers for restart
+const RESTART_ALLOWLIST: &[&str] = &[
+    "qbittorrent", "sonarr", "radarr", "bazarr", "prowlarr",
+    "jellyfin", "jellyseerr", "flaresolverr", "homeassistant",
+];
+
+/// POST /api/actions/restart/{container}
+async fn action_restart_container(path: web::Path<String>) -> HttpResponse {
+    let container = path.into_inner();
+
+    if !RESTART_ALLOWLIST.contains(&container.as_str()) {
+        return HttpResponse::BadRequest().body(
+            r#"<span class="text-nexus-error">Container not in allowlist</span>"#,
+        );
+    }
+
+    let output = tokio::process::Command::new("docker")
+        .args(["restart", &container])
+        .output()
+        .await;
+
+    match output {
+        Ok(o) if o.status.success() => HttpResponse::Ok().body(format!(
+            r#"<span class="text-nexus-accent">✓ {} restarted</span>"#,
+            container
+        )),
+        Ok(o) => {
+            let err = String::from_utf8_lossy(&o.stderr);
+            HttpResponse::Ok().body(format!(
+                r#"<span class="text-nexus-error">✗ {}</span>"#,
+                err.chars().take(80).collect::<String>()
+            ))
+        }
+        Err(e) => HttpResponse::Ok().body(format!(
+            r#"<span class="text-nexus-error">✗ {}</span>"#,
+            e
+        )),
+    }
+}
+
+/// POST /api/actions/qbit/pause
+async fn action_qbit_pause() -> HttpResponse {
+    qbit_action("stop").await  // qBit v5+ uses "stop" instead of "pause"
+}
+
+/// POST /api/actions/qbit/resume
+async fn action_qbit_resume() -> HttpResponse {
+    qbit_action("start").await  // qBit v5+ uses "start" instead of "resume"
+}
+
+async fn qbit_action(action: &str) -> HttpResponse {
+    let qbit_url = std::env::var("QBIT_URL").unwrap_or_else(|_| "http://localhost:8080".into());
+    let qbit_user = std::env::var("QBIT_USERNAME").unwrap_or_else(|_| "admin".into());
+    let qbit_pass = std::env::var("QBIT_PASSWORD").unwrap_or_else(|_| "".into());
+
+    let client = match reqwest::Client::builder()
+        .cookie_store(true)
+        .timeout(std::time::Duration::from_secs(5))
+        .build()
+    {
+        Ok(c) => c,
+        Err(e) => {
+            return HttpResponse::Ok().body(format!(
+                r#"<span class="text-nexus-error">✗ {}</span>"#, e
+            ));
+        }
+    };
+
+    // Login
+    let login = client
+        .post(format!("{}/api/v2/auth/login", qbit_url))
+        .header("Content-Type", "application/x-www-form-urlencoded")
+        .body(format!("username={}&password={}", qbit_user, qbit_pass))
+        .send()
+        .await;
+
+    if login.is_err() {
+        return HttpResponse::Ok().body(
+            r#"<span class="text-nexus-error">✗ qBit login failed</span>"#,
+        );
+    }
+
+    // Perform action
+    let endpoint = format!("{}/api/v2/torrents/{}", qbit_url, action);
+    let result = client
+        .post(&endpoint)
+        .header("Content-Type", "application/x-www-form-urlencoded")
+        .body("hashes=all")
+        .send()
+        .await;
+
+    match result {
+        Ok(r) if r.status().is_success() => {
+            let label = if action == "stop" { "paused" } else { "resumed" };
+            HttpResponse::Ok().body(format!(
+                r#"<span class="text-nexus-accent">✓ All downloads {}</span>"#,
+                label
+            ))
+        }
+        Ok(r) => HttpResponse::Ok().body(format!(
+            r#"<span class="text-nexus-error">✗ HTTP {}</span>"#,
+            r.status()
+        )),
+        Err(e) => HttpResponse::Ok().body(format!(
+            r#"<span class="text-nexus-error">✗ {}</span>"#, e
+        )),
+    }
+}
+
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     let port = std::env::var("PORT").unwrap_or_else(|_| "3000".into());
@@ -340,7 +537,9 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .app_data(data.clone())
             .service(fs::Files::new("/static", "./static").show_files_listing())
+            // Page
             .route("/", web::get().to(index))
+            // Existing HTMX partials
             .route("/htmx/services", web::get().to(htmx_services))
             .route("/htmx/vitals", web::get().to(htmx_vitals))
             .route("/htmx/downloads", web::get().to(htmx_downloads))
@@ -350,6 +549,18 @@ async fn main() -> std::io::Result<()> {
             .route("/htmx/activity", web::get().to(htmx_activity))
             .route("/htmx/logs/{container}", web::get().to(htmx_logs))
             .route("/htmx/clawdbot-logs", web::get().to(htmx_clawdbot_logs))
+            // New HTMX partials
+            .route("/htmx/media-stats", web::get().to(htmx_media_stats))
+            .route("/htmx/media-queue", web::get().to(htmx_media_queue))
+            .route("/htmx/upcoming", web::get().to(htmx_upcoming))
+            .route("/htmx/speedtest", web::get().to(htmx_speedtest))
+            .route("/htmx/container-resources", web::get().to(htmx_container_resources))
+            .route("/htmx/recently-added", web::get().to(htmx_recently_added))
+            .route("/htmx/journal", web::get().to(htmx_journal))
+            // Quick Actions
+            .route("/api/actions/restart/{container}", web::post().to(action_restart_container))
+            .route("/api/actions/qbit/pause", web::post().to(action_qbit_pause))
+            .route("/api/actions/qbit/resume", web::post().to(action_qbit_resume))
     })
     .bind(format!("0.0.0.0:{}", port))?
     .run()

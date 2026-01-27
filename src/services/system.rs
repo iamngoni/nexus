@@ -2,6 +2,13 @@ use serde::Serialize;
 use tokio::process::Command;
 
 #[derive(Debug, Clone, Serialize)]
+pub struct CpuTemp {
+    pub temp_c: f64,
+    pub label: String,
+    pub color: String, // "green", "yellow", "red"
+}
+
+#[derive(Debug, Clone, Serialize)]
 pub struct SystemVitals {
     pub cpu_percent: f64,
     pub mem_used_gb: f64,
@@ -13,6 +20,7 @@ pub struct SystemVitals {
     pub media_used_gb: f64,
     pub media_total_gb: f64,
     pub media_percent: f64,
+    pub cpu_temp: Option<CpuTemp>,
 }
 
 pub async fn get_vitals() -> SystemVitals {
@@ -20,6 +28,7 @@ pub async fn get_vitals() -> SystemVitals {
     let (mem_used, mem_total) = get_memory().await;
     let (disk_used, disk_total) = get_disk("/").await;
     let (media_used, media_total) = get_disk("/mnt/media").await;
+    let cpu_temp = get_cpu_temp().await;
 
     SystemVitals {
         cpu_percent: cpu,
@@ -32,6 +41,7 @@ pub async fn get_vitals() -> SystemVitals {
         media_used_gb: media_used,
         media_total_gb: media_total,
         media_percent: if media_total > 0.0 { (media_used / media_total) * 100.0 } else { 0.0 },
+        cpu_temp,
     }
 }
 
@@ -76,4 +86,67 @@ async fn get_disk(path: &str) -> (f64, f64) {
         }
         Err(_) => (0.0, 0.0),
     }
+}
+
+async fn get_cpu_temp() -> Option<CpuTemp> {
+    // Try to find the CPU package temp (x86_pkg_temp) first, then fall back
+    let zones = ["thermal_zone6", "thermal_zone0", "thermal_zone2"];
+
+    for zone in &zones {
+        let temp_path = format!("/sys/class/thermal/{}/temp", zone);
+        if let Ok(content) = tokio::fs::read_to_string(&temp_path).await {
+            if let Ok(millideg) = content.trim().parse::<f64>() {
+                let temp_c = millideg / 1000.0;
+                let color = if temp_c < 60.0 {
+                    "green"
+                } else if temp_c < 80.0 {
+                    "yellow"
+                } else {
+                    "red"
+                };
+
+                // Read the zone type for label
+                let type_path = format!("/sys/class/thermal/{}/type", zone);
+                let label = tokio::fs::read_to_string(&type_path)
+                    .await
+                    .unwrap_or_else(|_| "CPU".into())
+                    .trim()
+                    .to_string();
+
+                return Some(CpuTemp {
+                    temp_c,
+                    label,
+                    color: color.into(),
+                });
+            }
+        }
+    }
+
+    // Fallback: try any zone
+    let output = Command::new("sh")
+        .arg("-c")
+        .arg("cat /sys/class/thermal/thermal_zone*/temp 2>/dev/null | head -1")
+        .output()
+        .await;
+
+    if let Ok(o) = output {
+        let s = String::from_utf8_lossy(&o.stdout);
+        if let Ok(millideg) = s.trim().parse::<f64>() {
+            let temp_c = millideg / 1000.0;
+            let color = if temp_c < 60.0 {
+                "green"
+            } else if temp_c < 80.0 {
+                "yellow"
+            } else {
+                "red"
+            };
+            return Some(CpuTemp {
+                temp_c,
+                label: "CPU".into(),
+                color: color.into(),
+            });
+        }
+    }
+
+    None
 }

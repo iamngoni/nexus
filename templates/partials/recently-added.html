@@ -1,0 +1,50 @@
+<!-- Header -->
+<div class="flex items-center justify-between mb-4">
+    <h2 class="text-sm font-semibold text-white">Recently Added</h2>
+    <i data-lucide="film" class="w-4 h-4 text-nexus-muted"></i>
+</div>
+
+{% if recent.available %}
+<div class="space-y-2 max-h-[280px] overflow-y-auto custom-scroll pr-1">
+    {% for item in recent.items %}
+    <div class="flex items-center gap-3 py-1.5 border-b border-white/[0.03] last:border-0">
+        <!-- Type icon -->
+        <div class="shrink-0 w-7 h-7 rounded-md flex items-center justify-center
+            {% if item.item_type == 'Movie' %}bg-nexus-accent/10
+            {% else %}bg-nexus-secondary/10
+            {% endif %}">
+            {% if item.item_type == "Movie" %}
+            <i data-lucide="film" class="w-3.5 h-3.5 text-nexus-accent"></i>
+            {% else %}
+            <i data-lucide="tv" class="w-3.5 h-3.5 text-nexus-secondary"></i>
+            {% endif %}
+        </div>
+        <!-- Content -->
+        <div class="flex-1 min-w-0">
+            <span class="text-xs text-gray-300 block truncate" title="{{ item.display_name }}">{{ item.display_name }}</span>
+            <div class="flex items-center gap-2 mt-0.5">
+                <span class="px-1.5 py-0.5 rounded text-[9px] font-mono uppercase
+                    {% if item.item_type == 'Movie' %}text-nexus-accent bg-nexus-accent/10
+                    {% else %}text-nexus-secondary bg-nexus-secondary/10
+                    {% endif %}">{{ item.item_type }}</span>
+                {% if item.date_added %}
+                <span class="text-[10px] text-nexus-muted font-mono">{{ item.date_added }}</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+
+    {% if recent.items | length == 0 %}
+    <div class="flex flex-col items-center justify-center py-6 text-nexus-muted">
+        <i data-lucide="inbox" class="w-6 h-6 mb-2"></i>
+        <span class="text-xs">Nothing recently added</span>
+    </div>
+    {% endif %}
+</div>
+{% else %}
+<div class="flex flex-col items-center justify-center py-6 text-nexus-muted">
+    <i data-lucide="cloud-off" class="w-6 h-6 mb-2"></i>
+    <span class="text-xs">Jellyfin unavailable</span>
+</div>
+{% endif %}

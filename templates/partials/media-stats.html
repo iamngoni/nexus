@@ -1,0 +1,39 @@
+<!-- Header -->
+<div class="flex items-center justify-between mb-4">
+    <h2 class="text-sm font-semibold text-white">Media Library</h2>
+    <i data-lucide="library" class="w-4 h-4 text-nexus-muted"></i>
+</div>
+
+{% if stats.available %}
+<div class="grid grid-cols-2 gap-3">
+    <!-- Movies -->
+    <div class="bg-nexus-tile border border-nexus-tile-border rounded-tile p-3 text-center">
+        <i data-lucide="film" class="w-4 h-4 text-nexus-accent mx-auto mb-1.5"></i>
+        <div class="font-mono text-lg font-medium text-white">{{ stats.movie_count }}</div>
+        <div class="text-[10px] text-nexus-muted uppercase">Movies</div>
+    </div>
+    <!-- Shows -->
+    <div class="bg-nexus-tile border border-nexus-tile-border rounded-tile p-3 text-center">
+        <i data-lucide="tv" class="w-4 h-4 text-nexus-secondary mx-auto mb-1.5"></i>
+        <div class="font-mono text-lg font-medium text-white">{{ stats.series_count }}</div>
+        <div class="text-[10px] text-nexus-muted uppercase">Shows</div>
+    </div>
+    <!-- Episodes -->
+    <div class="bg-nexus-tile border border-nexus-tile-border rounded-tile p-3 text-center">
+        <i data-lucide="clapperboard" class="w-4 h-4 text-nexus-tertiary mx-auto mb-1.5"></i>
+        <div class="font-mono text-lg font-medium text-white">{{ stats.episode_count }}</div>
+        <div class="text-[10px] text-nexus-muted uppercase">Episodes</div>
+    </div>
+    <!-- Songs -->
+    <div class="bg-nexus-tile border border-nexus-tile-border rounded-tile p-3 text-center">
+        <i data-lucide="music" class="w-4 h-4 text-pink-400 mx-auto mb-1.5"></i>
+        <div class="font-mono text-lg font-medium text-white">{{ stats.song_count }}</div>
+        <div class="text-[10px] text-nexus-muted uppercase">Songs</div>
+    </div>
+</div>
+{% else %}
+<div class="flex flex-col items-center justify-center py-8 text-nexus-muted">
+    <i data-lucide="cloud-off" class="w-6 h-6 mb-2"></i>
+    <span class="text-xs">Jellyfin unavailable</span>
+</div>
+{% endif %}

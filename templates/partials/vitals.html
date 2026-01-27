@@ -102,6 +102,34 @@
     </div>
 </div>
 
+<!-- CPU Temperature -->
+{% if vitals.cpu_temp %}
+<div class="border-t border-nexus-tile-border pt-4 mb-4">
+    <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+            <i data-lucide="thermometer" class="w-4 h-4
+                {% if vitals.cpu_temp.color == 'green' %}text-nexus-accent
+                {% elif vitals.cpu_temp.color == 'yellow' %}text-nexus-tertiary
+                {% else %}text-nexus-error
+                {% endif %}"></i>
+            <span class="text-xs font-semibold text-white">CPU Temp</span>
+        </div>
+        <div class="flex items-center gap-2">
+            <span class="font-mono text-lg font-medium
+                {% if vitals.cpu_temp.color == 'green' %}text-nexus-accent
+                {% elif vitals.cpu_temp.color == 'yellow' %}text-nexus-tertiary
+                {% else %}text-nexus-error
+                {% endif %}">{{ vitals.cpu_temp.temp_c | round(method="ceil", precision=0) }}°C</span>
+            <span class="w-2 h-2 rounded-full
+                {% if vitals.cpu_temp.color == 'green' %}dot-up
+                {% elif vitals.cpu_temp.color == 'yellow' %}dot-degraded
+                {% else %}dot-down
+                {% endif %}"></span>
+        </div>
+    </div>
+</div>
+{% endif %}
+
 <!-- Network Section -->
 <div class="border-t border-nexus-tile-border pt-4">
     <div class="flex items-center gap-2 mb-3">

@@ -1,0 +1,52 @@
+<!-- Header -->
+<div class="flex items-center justify-between mb-4">
+    <div class="flex items-center gap-3">
+        <h2 class="text-sm font-semibold text-white">Media Queue</h2>
+        {% if queue.total_count > 0 %}
+        <span class="px-2.5 py-0.5 rounded-full text-xs font-medium font-mono"
+              style="background: rgba(0,212,170,0.1); color: #00D4AA;">
+            {{ queue.total_count }} items
+        </span>
+        {% endif %}
+    </div>
+    <i data-lucide="list-ordered" class="w-4 h-4 text-nexus-muted"></i>
+</div>
+
+<!-- Queue list -->
+<div class="space-y-2.5 max-h-[280px] overflow-y-auto custom-scroll pr-1">
+    {% for item in queue.items %}
+    <div class="space-y-1.5">
+        <div class="flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2 min-w-0 flex-1">
+                <span class="shrink-0 w-1.5 h-1.5 rounded-full
+                    {% if item.status == 'downloading' %}bg-nexus-accent animate-pulse
+                    {% elif item.status == 'importing' %}bg-nexus-tertiary
+                    {% else %}bg-nexus-muted
+                    {% endif %}"></span>
+                <span class="text-xs text-gray-300 truncate" title="{{ item.title }}">{{ item.title }}</span>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+                <span class="px-1.5 py-0.5 rounded text-[9px] font-mono uppercase
+                    {% if item.source == 'sonarr' %}text-blue-400 bg-blue-500/10
+                    {% else %}text-purple-400 bg-purple-500/10
+                    {% endif %}">{{ item.source }}</span>
+                <span class="font-mono text-[10px] {% if item.progress >= 100.0 %}text-nexus-accent{% else %}text-white{% endif %}">
+                    {{ item.progress | round(method="ceil", precision=1) }}%
+                </span>
+            </div>
+        </div>
+        <div class="w-full h-1 bg-nexus-tile-border rounded-full overflow-hidden">
+            <div class="h-full rounded-full transition-all duration-500
+                {% if item.source == 'sonarr' %}progress-teal{% else %}progress-purple{% endif %}"
+                 style="width: {{ item.progress }}%"></div>
+        </div>
+    </div>
+    {% endfor %}
+
+    {% if queue.items | length == 0 %}
+    <div class="flex flex-col items-center justify-center py-6 text-nexus-muted">
+        <i data-lucide="check-circle" class="w-6 h-6 mb-2"></i>
+        <span class="text-xs">Queue empty</span>
+    </div>
+    {% endif %}
+</div>

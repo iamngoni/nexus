@@ -1,0 +1,58 @@
+<!-- Header -->
+<div class="flex items-center justify-between mb-4">
+    <div class="flex items-center gap-3">
+        <h2 class="text-sm font-semibold text-white">Upcoming</h2>
+        {% if upcoming.items | length > 0 %}
+        <span class="px-2.5 py-0.5 rounded-full text-xs font-medium font-mono"
+              style="background: rgba(167,139,250,0.1); color: #A78BFA;">
+            {{ upcoming.items | length }} this week
+        </span>
+        {% endif %}
+    </div>
+    <i data-lucide="calendar" class="w-4 h-4 text-nexus-muted"></i>
+</div>
+
+<!-- Upcoming list -->
+<div class="space-y-2 max-h-[280px] overflow-y-auto custom-scroll pr-1">
+    {% for item in upcoming.items %}
+    <div class="flex items-start gap-3 py-1.5 border-b border-white/[0.03] last:border-0">
+        <!-- Date badge -->
+        <div class="shrink-0 bg-nexus-tile border border-nexus-tile-border rounded-tile px-2 py-1 text-center min-w-[60px]">
+            <span class="text-[10px] font-mono text-nexus-muted">{{ item.air_date }}</span>
+        </div>
+        <!-- Content -->
+        <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2">
+                <span class="text-xs text-gray-300 truncate" title="{{ item.display_title }}">
+                    {% if item.series_title %}
+                        <span class="text-nexus-accent">{{ item.series_title }}</span>
+                        <span class="text-nexus-muted mx-0.5">·</span>
+                        {{ item.title }}
+                    {% else %}
+                        {{ item.title }}
+                    {% endif %}
+                </span>
+            </div>
+            <div class="flex items-center gap-2 mt-0.5">
+                {% if item.episode_info %}
+                <span class="font-mono text-[10px] text-nexus-secondary">{{ item.episode_info }}</span>
+                {% endif %}
+                {% if item.network %}
+                <span class="text-[10px] text-nexus-muted">{{ item.network }}</span>
+                {% endif %}
+                <span class="px-1.5 py-0.5 rounded text-[9px] font-mono uppercase
+                    {% if item.source == 'sonarr' %}text-blue-400 bg-blue-500/10
+                    {% else %}text-purple-400 bg-purple-500/10
+                    {% endif %}">{{ item.source }}</span>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+
+    {% if upcoming.items | length == 0 %}
+    <div class="flex flex-col items-center justify-center py-6 text-nexus-muted">
+        <i data-lucide="calendar-x" class="w-6 h-6 mb-2"></i>
+        <span class="text-xs">Nothing upcoming this week</span>
+    </div>
+    {% endif %}
+</div>

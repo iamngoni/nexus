@@ -1,0 +1,38 @@
+<!-- Header -->
+<div class="flex items-center justify-between mb-3">
+    <div class="flex items-center gap-2">
+        <i data-lucide="file-warning" class="w-4 h-4 text-nexus-error"></i>
+        <h2 class="text-sm font-semibold text-white">System Journal</h2>
+        {% if journal.has_entries %}
+        <span class="px-2 py-0.5 rounded-full text-[10px] font-mono"
+              style="background: rgba(239,68,68,0.1); color: #EF4444;">
+            {{ journal.entries | length }} errors
+        </span>
+        {% endif %}
+    </div>
+    <i data-lucide="terminal" class="w-4 h-4 text-nexus-muted"></i>
+</div>
+
+<div class="font-mono text-[11px] bg-nexus-tile border border-nexus-tile-border rounded-tile overflow-auto max-h-[260px] leading-relaxed">
+    {% if journal.has_entries %}
+    {% for entry in journal.entries %}
+    <div class="flex gap-2 px-3 py-[3px] border-b border-white/[0.03] hover:bg-white/[0.02] transition-colors bg-red-500/[0.03]">
+        <!-- Timestamp -->
+        <span class="text-gray-600 shrink-0 select-none">{{ entry.timestamp }}</span>
+        <!-- Unit -->
+        {% if entry.unit %}
+        <span class="shrink-0 text-purple-400/70 select-none">[{{ entry.unit }}]</span>
+        {% endif %}
+        <!-- Message -->
+        <span class="text-red-300/80 break-all">{{ entry.message }}</span>
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="px-3 py-4 text-gray-500 text-center">
+        <div class="flex flex-col items-center gap-1">
+            <i data-lucide="shield-check" class="w-5 h-5 text-nexus-accent"></i>
+            <span>No recent errors</span>
+        </div>
+    </div>
+    {% endif %}
+</div>
