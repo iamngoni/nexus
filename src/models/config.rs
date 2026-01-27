@@ -116,6 +116,14 @@ impl AppConfig {
                     category: "Infrastructure".into(),
                     container: "flaresolverr".into(),
                 },
+                ServiceDef {
+                    name: "Nexus".into(),
+                    url: format!("http://{}:3000", ip),
+                    icon: "🖥️".into(),
+                    lucide_icon: "layout-dashboard".into(),
+                    category: "Infrastructure".into(),
+                    container: "nexus".into(),
+                },
             ],
         }
     }
