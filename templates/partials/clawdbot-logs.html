@@ -7,8 +7,40 @@
     </div>
     <i data-lucide="terminal" class="w-4 h-4 text-nexus-muted"></i>
 </div>
-<pre id="clawdbot-log-pre"
-     class="text-[11px] font-mono text-gray-400 bg-nexus-tile border border-nexus-tile-border rounded-tile p-3 overflow-auto max-h-[300px] whitespace-pre-wrap break-all leading-relaxed">{{ logs }}</pre>
+<div id="clawdbot-log-container"
+     class="font-mono text-[11px] bg-nexus-tile border border-nexus-tile-border rounded-tile overflow-auto max-h-[300px] leading-relaxed">
+    {% if has_logs %}
+    {% for entry in entries %}
+    <div class="flex gap-2 px-3 py-[3px] border-b border-white/[0.03] hover:bg-white/[0.02] transition-colors
+        {% if entry.level_lower == 'error' %} bg-red-500/[0.05]
+        {% elif entry.level_lower == 'warn' %} bg-amber-500/[0.03]
+        {% endif %}">
+        <!-- Timestamp -->
+        <span class="text-gray-600 shrink-0 select-none">{{ entry.time }}</span>
+        <!-- Level badge -->
+        <span class="shrink-0 w-[42px] text-center text-[10px] font-bold rounded px-1 py-[1px] select-none
+            {% if entry.level_lower == 'error' %} text-red-400 bg-red-500/10
+            {% elif entry.level_lower == 'warn' %} text-amber-400 bg-amber-500/10
+            {% elif entry.level_lower == 'info' %} text-blue-400 bg-blue-500/10
+            {% elif entry.level_lower == 'debug' %} text-gray-500 bg-gray-500/10
+            {% else %} text-gray-500 bg-gray-500/10
+            {% endif %}">{{ entry.level }}</span>
+        <!-- Subsystem -->
+        {% if entry.subsystem %}
+        <span class="shrink-0 text-purple-400/70 select-none">[{{ entry.subsystem }}]</span>
+        {% endif %}
+        <!-- Message -->
+        <span class="text-gray-300 break-all
+            {% if entry.level_lower == 'error' %} text-red-300
+            {% elif entry.level_lower == 'warn' %} text-amber-300/80
+            {% elif entry.level_lower == 'debug' %} text-gray-500
+            {% endif %}">{{ entry.message }}</span>
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="px-3 py-4 text-gray-500 text-center">No logs found for today.</div>
+    {% endif %}
+</div>
 <script>
-(function(){ var el = document.getElementById('clawdbot-log-pre'); if(el) el.scrollTop = el.scrollHeight; })();
+(function(){ var el = document.getElementById('clawdbot-log-container'); if(el) el.scrollTop = el.scrollHeight; })();
 </script>
