@@ -18,10 +18,25 @@ pub struct AppState {
 
 async fn index(data: web::Data<AppState>) -> HttpResponse {
     let checker = data.checker.read().await;
+    let statuses = checker.get_statuses();
+    let online_count = statuses.iter().filter(|s| s.status == "up").count();
+
     let mut ctx = tera::Context::new();
-    ctx.insert("services", &checker.get_statuses());
-    ctx.insert("now", &chrono::Local::now().format("%H:%M").to_string());
-    ctx.insert("date", &chrono::Local::now().format("%A, %B %e, %Y").to_string());
+    ctx.insert("services", &statuses);
+    ctx.insert("online_count", &online_count);
+    ctx.insert("total_count", &statuses.len());
+
+    // Greeting based on time of day
+    let hour = chrono::Local::now().format("%H").to_string().parse::<u32>().unwrap_or(12);
+    let greeting = match hour {
+        5..=11 => "Good morning",
+        12..=17 => "Good afternoon",
+        18..=22 => "Good evening",
+        _ => "Good night",
+    };
+    ctx.insert("greeting", greeting);
+    ctx.insert("time", &chrono::Local::now().format("%H:%M").to_string());
+    ctx.insert("date", &chrono::Local::now().format("%a %d %b").to_string());
 
     match data.tera.render("index.html", &ctx) {
         Ok(body) => HttpResponse::Ok().content_type("text/html").body(body),
@@ -29,19 +44,23 @@ async fn index(data: web::Data<AppState>) -> HttpResponse {
     }
 }
 
-/// HTMX partial: refreshes service status cards
+/// HTMX partial: refreshes service status tiles
 async fn htmx_services(data: web::Data<AppState>) -> HttpResponse {
     let checker = data.checker.read().await;
+    let statuses = checker.get_statuses();
+    let online_count = statuses.iter().filter(|s| s.status == "up").count();
     let mut ctx = tera::Context::new();
-    ctx.insert("services", &checker.get_statuses());
+    ctx.insert("services", &statuses);
+    ctx.insert("online_count", &online_count);
+    ctx.insert("total_count", &statuses.len());
 
     match data.tera.render("partials/services.html", &ctx) {
         Ok(body) => HttpResponse::Ok().content_type("text/html").body(body),
-        Err(e) => HttpResponse::InternalServerError().body(format!("Template error: {}", e)),
+        Err(e) => HttpResponse::InternalServerError().body(format!("Partial error: {}", e)),
     }
 }
 
-/// HTMX partial: system vitals
+/// HTMX partial: system vitals with ring gauges
 async fn htmx_vitals(data: web::Data<AppState>) -> HttpResponse {
     let vitals = services::system::get_vitals().await;
     let mut ctx = tera::Context::new();
@@ -49,7 +68,77 @@ async fn htmx_vitals(data: web::Data<AppState>) -> HttpResponse {
 
     match data.tera.render("partials/vitals.html", &ctx) {
         Ok(body) => HttpResponse::Ok().content_type("text/html").body(body),
-        Err(e) => HttpResponse::InternalServerError().body(format!("Template error: {}", e)),
+        Err(e) => HttpResponse::InternalServerError().body(format!("Partial error: {}", e)),
+    }
+}
+
+/// HTMX partial: downloads from qBittorrent
+async fn htmx_downloads(data: web::Data<AppState>) -> HttpResponse {
+    let downloads = services::downloads::get_downloads().await;
+    let mut ctx = tera::Context::new();
+    ctx.insert("downloads", &downloads);
+
+    match data.tera.render("partials/downloads.html", &ctx) {
+        Ok(body) => HttpResponse::Ok().content_type("text/html").body(body),
+        Err(e) => HttpResponse::InternalServerError().body(format!("Partial error: {}", e)),
+    }
+}
+
+/// HTMX partial: weather info
+async fn htmx_weather(data: web::Data<AppState>) -> HttpResponse {
+    let weather = services::weather::get_weather().await;
+    let mut ctx = tera::Context::new();
+    ctx.insert("weather", &weather);
+
+    match data.tera.render("partials/weather.html", &ctx) {
+        Ok(body) => HttpResponse::Ok().content_type("text/html").body(body),
+        Err(e) => HttpResponse::InternalServerError().body(format!("Partial error: {}", e)),
+    }
+}
+
+/// HTMX partial: storage info
+async fn htmx_storage(data: web::Data<AppState>) -> HttpResponse {
+    let vitals = services::system::get_vitals().await;
+    let mut ctx = tera::Context::new();
+    ctx.insert("vitals", &vitals);
+
+    match data.tera.render("partials/storage.html", &ctx) {
+        Ok(body) => HttpResponse::Ok().content_type("text/html").body(body),
+        Err(e) => HttpResponse::InternalServerError().body(format!("Partial error: {}", e)),
+    }
+}
+
+/// HTMX partial: live date/time
+async fn htmx_datetime(data: web::Data<AppState>) -> HttpResponse {
+    let mut ctx = tera::Context::new();
+    let hour = chrono::Local::now().format("%H").to_string().parse::<u32>().unwrap_or(12);
+    let greeting = match hour {
+        5..=11 => "Good morning",
+        12..=17 => "Good afternoon",
+        18..=22 => "Good evening",
+        _ => "Good night",
+    };
+    ctx.insert("greeting", greeting);
+    ctx.insert("time", &chrono::Local::now().format("%H:%M").to_string());
+    ctx.insert("date", &chrono::Local::now().format("%a %d %b").to_string());
+
+    match data.tera.render("partials/datetime.html", &ctx) {
+        Ok(body) => HttpResponse::Ok().content_type("text/html").body(body),
+        Err(e) => HttpResponse::InternalServerError().body(format!("Partial error: {}", e)),
+    }
+}
+
+/// HTMX partial: activity feed
+async fn htmx_activity(data: web::Data<AppState>) -> HttpResponse {
+    let checker = data.checker.read().await;
+    let statuses = checker.get_statuses();
+    let mut ctx = tera::Context::new();
+    ctx.insert("services", &statuses);
+    ctx.insert("now", &chrono::Local::now().format("%H:%M:%S").to_string());
+
+    match data.tera.render("partials/activity.html", &ctx) {
+        Ok(body) => HttpResponse::Ok().content_type("text/html").body(body),
+        Err(e) => HttpResponse::InternalServerError().body(format!("Partial error: {}", e)),
     }
 }
 
@@ -88,6 +177,11 @@ async fn main() -> std::io::Result<()> {
             .route("/", web::get().to(index))
             .route("/htmx/services", web::get().to(htmx_services))
             .route("/htmx/vitals", web::get().to(htmx_vitals))
+            .route("/htmx/downloads", web::get().to(htmx_downloads))
+            .route("/htmx/weather", web::get().to(htmx_weather))
+            .route("/htmx/storage", web::get().to(htmx_storage))
+            .route("/htmx/datetime", web::get().to(htmx_datetime))
+            .route("/htmx/activity", web::get().to(htmx_activity))
     })
     .bind("0.0.0.0:3000")?
     .run()

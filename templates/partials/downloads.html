@@ -1,0 +1,61 @@
+<!-- Header -->
+<div class="flex items-center justify-between mb-4">
+    <div class="flex items-center gap-3">
+        <h2 class="text-sm font-semibold text-white">Downloads</h2>
+        {% if downloads.active_count > 0 %}
+        <span class="px-2.5 py-0.5 rounded-full text-xs font-medium font-mono"
+              style="background: rgba(0,212,170,0.1); color: #00D4AA;">
+            {{ downloads.active_count }} active
+        </span>
+        {% else %}
+        <span class="px-2.5 py-0.5 rounded-full text-xs font-medium font-mono"
+              style="background: rgba(107,107,118,0.15); color: #6B6B76;">
+            idle
+        </span>
+        {% endif %}
+    </div>
+    <i data-lucide="download" class="w-4 h-4 text-nexus-muted"></i>
+</div>
+
+<!-- Speed boxes -->
+<div class="flex gap-3 mb-4">
+    <div class="flex-1 bg-nexus-tile border border-nexus-tile-border rounded-tile p-2.5">
+        <div class="flex items-center gap-1.5 mb-1">
+            <i data-lucide="arrow-down" class="w-3 h-3 text-nexus-accent"></i>
+            <span class="text-[10px] text-nexus-muted uppercase">DL</span>
+        </div>
+        <span class="font-mono text-xs font-medium text-nexus-accent">{{ downloads.total_dl_speed }}</span>
+    </div>
+    <div class="flex-1 bg-nexus-tile border border-nexus-tile-border rounded-tile p-2.5">
+        <div class="flex items-center gap-1.5 mb-1">
+            <i data-lucide="arrow-up" class="w-3 h-3 text-nexus-secondary"></i>
+            <span class="text-[10px] text-nexus-muted uppercase">UL</span>
+        </div>
+        <span class="font-mono text-xs font-medium text-nexus-secondary">{{ downloads.total_up_speed }}</span>
+    </div>
+</div>
+
+<!-- Torrent list -->
+<div class="space-y-3 max-h-[240px] overflow-y-auto custom-scroll pr-1">
+    {% for torrent in downloads.torrents %}
+    <div class="space-y-1.5">
+        <div class="flex items-center justify-between">
+            <span class="text-xs text-gray-300 truncate max-w-[240px]" title="{{ torrent.name }}">{{ torrent.name }}</span>
+            <span class="font-mono text-[10px] {% if torrent.progress >= 100 %}text-nexus-accent{% else %}text-white{% endif %} ml-2 shrink-0">
+                {{ torrent.progress | round(method="ceil", precision=1) }}%
+            </span>
+        </div>
+        <div class="w-full h-1.5 bg-nexus-tile-border rounded-full overflow-hidden">
+            <div class="h-full rounded-full transition-all duration-500 progress-teal"
+                 style="width: {{ torrent.progress }}%"></div>
+        </div>
+    </div>
+    {% endfor %}
+
+    {% if downloads.torrents | length == 0 %}
+    <div class="flex flex-col items-center justify-center py-6 text-nexus-muted">
+        <i data-lucide="inbox" class="w-6 h-6 mb-2"></i>
+        <span class="text-xs">No downloads</span>
+    </div>
+    {% endif %}
+</div>

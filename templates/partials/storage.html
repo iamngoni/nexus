@@ -1,0 +1,50 @@
+<!-- Header -->
+<div class="flex items-center justify-between mb-4">
+    <div class="flex items-center gap-3">
+        <h2 class="text-sm font-semibold text-white">Storage</h2>
+        <i data-lucide="hard-drive" class="w-4 h-4 text-nexus-muted"></i>
+    </div>
+    <span class="font-mono text-xs text-nexus-muted">
+        {{ vitals.media_used_gb | round(method="ceil", precision=1) }} / {{ vitals.media_total_gb | round(method="ceil", precision=1) }} GB used
+    </span>
+</div>
+
+<!-- System Disk -->
+<div class="mb-4">
+    <div class="flex items-center justify-between mb-1.5">
+        <div class="flex items-center gap-2">
+            <i data-lucide="folder-root" class="w-3.5 h-3.5 text-nexus-accent"></i>
+            <span class="text-xs text-gray-300">System Disk</span>
+        </div>
+        <span class="font-mono text-xs text-nexus-muted">
+            {{ vitals.disk_used_gb | round(method="ceil", precision=1) }}G / {{ vitals.disk_total_gb | round(method="ceil", precision=1) }}G
+        </span>
+    </div>
+    <div class="w-full h-2.5 bg-nexus-tile-border rounded-full overflow-hidden">
+        <div class="h-full rounded-full progress-teal transition-all duration-700"
+             style="width: {{ vitals.disk_percent }}%"></div>
+    </div>
+    <div class="flex justify-end mt-1">
+        <span class="font-mono text-[10px] text-nexus-muted">{{ vitals.disk_percent | round(method="ceil", precision=1) }}%</span>
+    </div>
+</div>
+
+<!-- Media Drive -->
+<div>
+    <div class="flex items-center justify-between mb-1.5">
+        <div class="flex items-center gap-2">
+            <i data-lucide="film" class="w-3.5 h-3.5 text-nexus-secondary"></i>
+            <span class="text-xs text-gray-300">Media Drive</span>
+        </div>
+        <span class="font-mono text-xs text-nexus-muted">
+            {{ vitals.media_used_gb | round(method="ceil", precision=1) }}G / {{ vitals.media_total_gb | round(method="ceil", precision=1) }}G
+        </span>
+    </div>
+    <div class="w-full h-2.5 bg-nexus-tile-border rounded-full overflow-hidden">
+        <div class="h-full rounded-full progress-purple transition-all duration-700"
+             style="width: {{ vitals.media_percent }}%"></div>
+    </div>
+    <div class="flex justify-end mt-1">
+        <span class="font-mono text-[10px] text-nexus-muted">{{ vitals.media_percent | round(method="ceil", precision=1) }}%</span>
+    </div>
+</div>

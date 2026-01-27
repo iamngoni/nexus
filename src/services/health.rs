@@ -9,6 +9,7 @@ pub struct ServiceStatus {
     pub name: String,
     pub url: String,
     pub icon: String,
+    pub lucide_icon: String,
     pub category: String,
     pub status: String,       // "up", "down", "unknown"
     pub response_ms: u64,
@@ -27,6 +28,7 @@ impl ServiceChecker {
                 name: s.name.clone(),
                 url: s.url.clone(),
                 icon: s.icon.clone(),
+                lucide_icon: s.lucide_icon.clone(),
                 category: s.category.clone(),
                 status: "unknown".into(),
                 response_ms: 0,
@@ -39,6 +41,7 @@ impl ServiceChecker {
     pub async fn check_all(&mut self, services: &[ServiceDef]) {
         let client = reqwest::Client::builder()
             .timeout(Duration::from_secs(5))
+            .danger_accept_invalid_certs(true)
             .build()
             .unwrap();
 
@@ -49,7 +52,7 @@ impl ServiceChecker {
 
             let status = match result {
                 Ok(resp) if resp.status().is_success() || resp.status().is_redirection() => "up",
-                Ok(resp) if resp.status().as_u16() == 401 || resp.status().as_u16() == 403 => "up", // auth-protected but alive
+                Ok(resp) if resp.status().as_u16() == 401 || resp.status().as_u16() == 403 => "up",
                 Ok(_) => "degraded",
                 Err(_) => "down",
             };

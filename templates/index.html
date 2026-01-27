@@ -6,6 +6,10 @@
     <title>Nexus — Homelab Dashboard</title>
     <script src="https://unpkg.com/htmx.org@2.0.4"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -13,62 +17,213 @@
                 extend: {
                     colors: {
                         nexus: {
-                            bg: '#0a0e1a',
-                            card: '#111827',
-                            border: '#1e293b',
-                            accent: '#06b6d4',
-                            glow: '#22d3ee',
+                            bg: '#0A0A0F',
+                            card: '#111118',
+                            'card-border': '#1A1A24',
+                            tile: '#16161E',
+                            'tile-border': '#1F1F2A',
+                            nav: '#0E0E14',
+                            accent: '#00D4AA',
+                            secondary: '#A78BFA',
+                            tertiary: '#F59E0B',
+                            error: '#EF4444',
+                            muted: '#6B6B76',
                         }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        mono: ['"DM Mono"', 'monospace'],
+                    },
+                    borderRadius: {
+                        'card': '12px',
+                        'tile': '8px',
                     }
                 }
             }
         }
     </script>
     <style>
-        body { background: linear-gradient(135deg, #0a0e1a 0%, #111827 50%, #0f172a 100%); }
-        .glass { background: rgba(17, 24, 39, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(30, 41, 59, 0.5); }
-        .status-up { color: #34d399; }
-        .status-down { color: #f87171; }
-        .status-degraded { color: #fbbf24; }
-        .status-unknown { color: #6b7280; }
-        .dot-up { background: #34d399; box-shadow: 0 0 6px #34d399; }
-        .dot-down { background: #f87171; box-shadow: 0 0 6px #f87171; }
-        .dot-degraded { background: #fbbf24; box-shadow: 0 0 6px #fbbf24; }
-        .dot-unknown { background: #6b7280; }
-        .card-hover:hover { border-color: rgba(6, 182, 212, 0.3); transform: translateY(-1px); transition: all 0.2s; }
+        body {
+            background: #0A0A0F;
+            font-family: 'Inter', system-ui, sans-serif;
+        }
+        .font-mono {
+            font-family: 'DM Mono', monospace;
+        }
+        /* Status dot glows */
+        .dot-up {
+            background: #00D4AA;
+            box-shadow: 0 0 6px #00D4AA, 0 0 12px rgba(0,212,170,0.3);
+        }
+        .dot-down {
+            background: #EF4444;
+            box-shadow: 0 0 6px #EF4444, 0 0 12px rgba(239,68,68,0.3);
+        }
+        .dot-degraded {
+            background: #F59E0B;
+            box-shadow: 0 0 6px #F59E0B;
+        }
+        .dot-unknown {
+            background: #6B6B76;
+        }
+        /* Ring gauge */
+        .ring-gauge {
+            transform: rotate(-90deg);
+        }
+        .ring-track {
+            fill: none;
+            stroke: #1F1F2A;
+            stroke-width: 6;
+        }
+        .ring-value {
+            fill: none;
+            stroke-width: 6;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 0.8s ease;
+        }
+        /* Progress bar gradient */
+        .progress-teal {
+            background: linear-gradient(90deg, #00D4AA, #0891B2);
+        }
+        .progress-purple {
+            background: linear-gradient(90deg, #A78BFA, #7C3AED);
+        }
+        .progress-amber {
+            background: linear-gradient(90deg, #F59E0B, #D97706);
+        }
+        /* Scrollbar */
+        .custom-scroll::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scroll::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: #1F1F2A;
+            border-radius: 2px;
+        }
+        /* Service tile hover */
+        .service-tile {
+            transition: all 0.2s ease;
+        }
+        .service-tile:hover {
+            border-color: rgba(0, 212, 170, 0.3);
+            background: #1A1A24;
+        }
+        /* Lucide icons initial state */
+        [data-lucide] {
+            width: 18px;
+            height: 18px;
+        }
     </style>
 </head>
-<body class="min-h-screen text-gray-200 font-sans">
-    <!-- Header -->
-    <header class="px-6 py-5 flex items-center justify-between">
-        <div>
-            <h1 class="text-2xl font-bold text-white tracking-tight">
-                <span class="text-cyan-400">◆</span> Nexus
-            </h1>
-            <p class="text-sm text-gray-500 mt-0.5">Homelab Dashboard</p>
-        </div>
-        <div class="text-right">
-            <p class="text-lg font-medium text-white">{{ now }}</p>
-            <p class="text-sm text-gray-500">{{ date }}</p>
-        </div>
-    </header>
+<body class="min-h-screen text-gray-200">
 
-    <!-- Dashboard Grid -->
-    <main class="px-6 pb-8 grid grid-cols-1 lg:grid-cols-3 gap-5">
-        
-        <!-- Services (spans 2 cols) -->
-        <div class="lg:col-span-2 glass rounded-xl p-5" 
-             hx-get="/htmx/services" hx-trigger="every 30s" hx-swap="innerHTML">
-            {% include "partials/services.html" %}
+    <!-- Top Navigation -->
+    <nav class="bg-[#0E0E14] border-b border-nexus-card-border px-6 py-3.5 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <!-- Logo -->
+            <div class="w-9 h-9 rounded-lg flex items-center justify-center font-mono font-bold text-lg"
+                 style="background: linear-gradient(135deg, #00D4AA, #0891B2);">
+                N
+            </div>
+            <span class="font-mono text-sm font-medium text-white tracking-[4px] uppercase">NEXUS</span>
         </div>
 
-        <!-- System Vitals -->
-        <div class="glass rounded-xl p-5"
-             hx-get="/htmx/vitals" hx-trigger="every 10s" hx-swap="innerHTML">
-            <h2 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">System Vitals</h2>
-            <p class="text-gray-500 text-sm">Loading...</p>
+        <!-- Right: Greeting + DateTime + Bell -->
+        <div class="flex items-center gap-6"
+             id="datetime-area"
+             hx-get="/htmx/datetime"
+             hx-trigger="every 30s"
+             hx-swap="innerHTML">
+            {% include "partials/datetime.html" %}
+        </div>
+    </nav>
+
+    <!-- Main Dashboard -->
+    <main class="p-5 space-y-5">
+
+        <!-- Row 1: Services + System Vitals -->
+        <div class="flex gap-5">
+            <!-- Services Grid Card -->
+            <div class="flex-1 bg-nexus-card border border-nexus-card-border rounded-card p-5"
+                 id="services-card"
+                 hx-get="/htmx/services"
+                 hx-trigger="every 30s"
+                 hx-swap="innerHTML">
+                {% include "partials/services.html" %}
+            </div>
+
+            <!-- System Vitals Card -->
+            <div class="w-[420px] shrink-0 bg-nexus-card border border-nexus-card-border rounded-card p-5"
+                 id="vitals-card"
+                 hx-get="/htmx/vitals"
+                 hx-trigger="every 10s"
+                 hx-swap="innerHTML">
+                {% include "partials/vitals.html" %}
+            </div>
         </div>
 
+        <!-- Row 2: Downloads + Weather + Activity -->
+        <div class="flex gap-5">
+            <!-- Downloads Card -->
+            <div class="w-[380px] shrink-0 bg-nexus-card border border-nexus-card-border rounded-card p-5"
+                 id="downloads-card"
+                 hx-get="/htmx/downloads"
+                 hx-trigger="every 15s"
+                 hx-swap="innerHTML">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-sm font-semibold text-white">Downloads</h2>
+                </div>
+                <p class="text-xs text-nexus-muted">Loading...</p>
+            </div>
+
+            <!-- Weather Card -->
+            <div class="w-[260px] shrink-0 bg-nexus-card border border-nexus-card-border rounded-card p-5"
+                 id="weather-card"
+                 hx-get="/htmx/weather"
+                 hx-trigger="load, every 600s"
+                 hx-swap="innerHTML">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-sm font-semibold text-white">Weather</h2>
+                </div>
+                <p class="text-xs text-nexus-muted">Loading...</p>
+            </div>
+
+            <!-- Activity Feed -->
+            <div class="flex-1 bg-nexus-card border border-nexus-card-border rounded-card p-5"
+                 id="activity-card"
+                 hx-get="/htmx/activity"
+                 hx-trigger="every 30s"
+                 hx-swap="innerHTML">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-sm font-semibold text-white">Activity</h2>
+                </div>
+                <p class="text-xs text-nexus-muted">Loading...</p>
+            </div>
+        </div>
+
+        <!-- Row 3: Storage -->
+        <div class="bg-nexus-card border border-nexus-card-border rounded-card p-5"
+             id="storage-card"
+             hx-get="/htmx/storage"
+             hx-trigger="every 60s"
+             hx-swap="innerHTML">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-sm font-semibold text-white">Storage</h2>
+            </div>
+            <p class="text-xs text-nexus-muted">Loading...</p>
+        </div>
     </main>
+
+    <!-- Re-initialize lucide icons after HTMX swaps -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+        });
+        document.body.addEventListener('htmx:afterSwap', () => {
+            lucide.createIcons();
+        });
+    </script>
 </body>
 </html>

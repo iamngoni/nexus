@@ -1,25 +1,41 @@
-<h2 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">Services</h2>
-<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+<!-- Services Header -->
+<div class="flex items-center justify-between mb-4">
+    <div class="flex items-center gap-3">
+        <h2 class="text-sm font-semibold text-white">Services</h2>
+        <span class="px-2.5 py-0.5 rounded-full text-xs font-medium font-mono"
+              style="background: rgba(0,212,170,0.1); color: #00D4AA;">
+            {{ online_count }} online
+        </span>
+    </div>
+    <span class="text-xs text-nexus-muted font-mono">{{ total_count }} total</span>
+</div>
+
+<!-- 4-column grid -->
+<div class="grid grid-cols-4 gap-3">
     {% for svc in services %}
     <a href="{{ svc.url }}" target="_blank" rel="noopener"
-       class="glass card-hover rounded-lg p-3 flex items-center gap-3 group cursor-pointer">
-        <span class="text-xl">{{ svc.icon }}</span>
-        <div class="flex-1 min-w-0">
-            <p class="text-sm font-medium text-white truncate">{{ svc.name }}</p>
-            <div class="flex items-center gap-1.5 mt-0.5">
-                <span class="w-1.5 h-1.5 rounded-full dot-{{ svc.status }}"></span>
-                <span class="text-xs status-{{ svc.status }}">
-                    {% if svc.status == "up" %}
-                        {{ svc.response_ms }}ms
-                    {% elif svc.status == "down" %}
-                        offline
-                    {% elif svc.status == "degraded" %}
-                        degraded
-                    {% else %}
-                        checking...
-                    {% endif %}
-                </span>
-            </div>
+       class="service-tile bg-nexus-tile border border-nexus-tile-border rounded-tile p-3 flex flex-col items-center gap-2 cursor-pointer group">
+        <!-- Icon -->
+        <div class="relative">
+            <i data-lucide="{{ svc.lucide_icon }}"
+               class="w-5 h-5 {% if svc.status == 'down' %}text-nexus-error{% else %}text-nexus-accent{% endif %}"></i>
+        </div>
+        <!-- Name -->
+        <span class="text-xs font-medium text-gray-300 text-center leading-tight">{{ svc.name }}</span>
+        <!-- Response time + status dot -->
+        <div class="flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full dot-{{ svc.status }}"></span>
+            <span class="font-mono text-[10px] text-nexus-muted">
+                {% if svc.status == "up" %}
+                    {{ svc.response_ms }}ms
+                {% elif svc.status == "down" %}
+                    offline
+                {% elif svc.status == "degraded" %}
+                    degraded
+                {% else %}
+                    ...
+                {% endif %}
+            </span>
         </div>
     </a>
     {% endfor %}

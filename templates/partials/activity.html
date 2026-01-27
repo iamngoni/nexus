@@ -1,0 +1,38 @@
+<!-- Header -->
+<div class="flex items-center justify-between mb-4">
+    <div class="flex items-center gap-3">
+        <h2 class="text-sm font-semibold text-white">Activity</h2>
+        <span class="text-[10px] font-mono text-nexus-muted">Live</span>
+    </div>
+    <i data-lucide="activity" class="w-4 h-4 text-nexus-muted"></i>
+</div>
+
+<!-- Event list -->
+<div class="space-y-2.5 max-h-[280px] overflow-y-auto custom-scroll pr-1">
+    {% for svc in services %}
+    <div class="flex items-start gap-3 py-1.5">
+        <!-- Status dot -->
+        <div class="mt-1.5 shrink-0">
+            <div class="w-2 h-2 rounded-full dot-{{ svc.status }}"></div>
+        </div>
+        <!-- Content -->
+        <div class="flex-1 min-w-0">
+            <div class="flex items-center justify-between">
+                <span class="text-xs text-gray-300 font-medium">{{ svc.name }}</span>
+                <span class="font-mono text-[10px] text-nexus-muted ml-2">{{ svc.last_checked }}</span>
+            </div>
+            <span class="text-[11px] text-nexus-muted">
+                {% if svc.status == "up" %}
+                    Responding in {{ svc.response_ms }}ms
+                {% elif svc.status == "down" %}
+                    Service unreachable
+                {% elif svc.status == "degraded" %}
+                    Degraded performance
+                {% else %}
+                    Awaiting first check
+                {% endif %}
+            </span>
+        </div>
+    </div>
+    {% endfor %}
+</div>

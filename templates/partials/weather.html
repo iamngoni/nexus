@@ -1,0 +1,38 @@
+<!-- Header -->
+<div class="flex items-center justify-between mb-2">
+    <div class="flex items-center gap-2">
+        <i data-lucide="map-pin" class="w-3.5 h-3.5 text-nexus-muted"></i>
+        <span class="text-xs font-medium text-gray-400">{{ weather.location }}</span>
+    </div>
+</div>
+
+<!-- Main weather display -->
+<div class="flex flex-col items-center py-3">
+    <i data-lucide="{{ weather.icon_name }}" class="w-10 h-10 text-nexus-tertiary mb-2"></i>
+    <span class="font-mono text-[42px] font-medium text-white leading-none">{{ weather.temp_c }}°</span>
+    <span class="text-xs text-gray-400 mt-1">{{ weather.condition }}</span>
+</div>
+
+<!-- High / Low -->
+<div class="flex items-center justify-center gap-4 mb-3">
+    <div class="flex items-center gap-1">
+        <i data-lucide="arrow-up" class="w-3 h-3 text-nexus-error"></i>
+        <span class="font-mono text-xs text-gray-300">{{ weather.high_c }}°</span>
+    </div>
+    <div class="flex items-center gap-1">
+        <i data-lucide="arrow-down" class="w-3 h-3 text-blue-400"></i>
+        <span class="font-mono text-xs text-gray-300">{{ weather.low_c }}°</span>
+    </div>
+</div>
+
+<!-- Rain chance + Humidity -->
+<div class="flex gap-2">
+    <div class="flex-1 bg-nexus-tile border border-nexus-tile-border rounded-tile px-2.5 py-2 flex items-center gap-1.5">
+        <i data-lucide="droplets" class="w-3 h-3 text-blue-400"></i>
+        <span class="font-mono text-[10px] text-gray-400">{{ weather.rain_chance }}%</span>
+    </div>
+    <div class="flex-1 bg-nexus-tile border border-nexus-tile-border rounded-tile px-2.5 py-2 flex items-center gap-1.5">
+        <i data-lucide="wind" class="w-3 h-3 text-nexus-muted"></i>
+        <span class="font-mono text-[10px] text-gray-400">{{ weather.wind_kph }} km/h</span>
+    </div>
+</div>
