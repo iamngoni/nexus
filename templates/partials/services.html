@@ -1,0 +1,26 @@
+<h2 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">Services</h2>
+<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+    {% for svc in services %}
+    <a href="{{ svc.url }}" target="_blank" rel="noopener"
+       class="glass card-hover rounded-lg p-3 flex items-center gap-3 group cursor-pointer">
+        <span class="text-xl">{{ svc.icon }}</span>
+        <div class="flex-1 min-w-0">
+            <p class="text-sm font-medium text-white truncate">{{ svc.name }}</p>
+            <div class="flex items-center gap-1.5 mt-0.5">
+                <span class="w-1.5 h-1.5 rounded-full dot-{{ svc.status }}"></span>
+                <span class="text-xs status-{{ svc.status }}">
+                    {% if svc.status == "up" %}
+                        {{ svc.response_ms }}ms
+                    {% elif svc.status == "down" %}
+                        offline
+                    {% elif svc.status == "degraded" %}
+                        degraded
+                    {% else %}
+                        checking...
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+    </a>
+    {% endfor %}
+</div>

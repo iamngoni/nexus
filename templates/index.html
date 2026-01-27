@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus — Homelab Dashboard</title>
+    <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        nexus: {
+                            bg: '#0a0e1a',
+                            card: '#111827',
+                            border: '#1e293b',
+                            accent: '#06b6d4',
+                            glow: '#22d3ee',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background: linear-gradient(135deg, #0a0e1a 0%, #111827 50%, #0f172a 100%); }
+        .glass { background: rgba(17, 24, 39, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(30, 41, 59, 0.5); }
+        .status-up { color: #34d399; }
+        .status-down { color: #f87171; }
+        .status-degraded { color: #fbbf24; }
+        .status-unknown { color: #6b7280; }
+        .dot-up { background: #34d399; box-shadow: 0 0 6px #34d399; }
+        .dot-down { background: #f87171; box-shadow: 0 0 6px #f87171; }
+        .dot-degraded { background: #fbbf24; box-shadow: 0 0 6px #fbbf24; }
+        .dot-unknown { background: #6b7280; }
+        .card-hover:hover { border-color: rgba(6, 182, 212, 0.3); transform: translateY(-1px); transition: all 0.2s; }
+    </style>
+</head>
+<body class="min-h-screen text-gray-200 font-sans">
+    <!-- Header -->
+    <header class="px-6 py-5 flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-bold text-white tracking-tight">
+                <span class="text-cyan-400">◆</span> Nexus
+            </h1>
+            <p class="text-sm text-gray-500 mt-0.5">Homelab Dashboard</p>
+        </div>
+        <div class="text-right">
+            <p class="text-lg font-medium text-white">{{ now }}</p>
+            <p class="text-sm text-gray-500">{{ date }}</p>
+        </div>
+    </header>
+
+    <!-- Dashboard Grid -->
+    <main class="px-6 pb-8 grid grid-cols-1 lg:grid-cols-3 gap-5">
+        
+        <!-- Services (spans 2 cols) -->
+        <div class="lg:col-span-2 glass rounded-xl p-5" 
+             hx-get="/htmx/services" hx-trigger="every 30s" hx-swap="innerHTML">
+            {% include "partials/services.html" %}
+        </div>
+
+        <!-- System Vitals -->
+        <div class="glass rounded-xl p-5"
+             hx-get="/htmx/vitals" hx-trigger="every 10s" hx-swap="innerHTML">
+            <h2 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">System Vitals</h2>
+            <p class="text-gray-500 text-sm">Loading...</p>
+        </div>
+
+    </main>
+</body>
+</html>

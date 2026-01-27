@@ -1,0 +1,54 @@
+<h2 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">System Vitals</h2>
+<div class="space-y-4">
+    <!-- CPU -->
+    <div>
+        <div class="flex justify-between text-sm mb-1">
+            <span class="text-gray-400">CPU</span>
+            <span class="text-white font-medium">{{ vitals.cpu_percent | round(method="ceil", precision=1) }}%</span>
+        </div>
+        <div class="w-full h-2 bg-gray-800 rounded-full overflow-hidden">
+            <div class="h-full rounded-full transition-all duration-500
+                {% if vitals.cpu_percent > 80 %}bg-red-500{% elif vitals.cpu_percent > 50 %}bg-yellow-500{% else %}bg-cyan-500{% endif %}"
+                 style="width: {{ vitals.cpu_percent }}%"></div>
+        </div>
+    </div>
+
+    <!-- Memory -->
+    <div>
+        <div class="flex justify-between text-sm mb-1">
+            <span class="text-gray-400">Memory</span>
+            <span class="text-white font-medium">{{ vitals.mem_used_gb | round(method="ceil", precision=1) }} / {{ vitals.mem_total_gb | round(method="ceil", precision=1) }} GB</span>
+        </div>
+        <div class="w-full h-2 bg-gray-800 rounded-full overflow-hidden">
+            <div class="h-full rounded-full transition-all duration-500
+                {% if vitals.mem_percent > 80 %}bg-red-500{% elif vitals.mem_percent > 50 %}bg-yellow-500{% else %}bg-cyan-500{% endif %}"
+                 style="width: {{ vitals.mem_percent }}%"></div>
+        </div>
+    </div>
+
+    <!-- System Disk -->
+    <div>
+        <div class="flex justify-between text-sm mb-1">
+            <span class="text-gray-400">System Disk</span>
+            <span class="text-white font-medium">{{ vitals.disk_used_gb | round(method="ceil", precision=1) }} / {{ vitals.disk_total_gb | round(method="ceil", precision=1) }} GB</span>
+        </div>
+        <div class="w-full h-2 bg-gray-800 rounded-full overflow-hidden">
+            <div class="h-full rounded-full transition-all duration-500
+                {% if vitals.disk_percent > 80 %}bg-red-500{% elif vitals.disk_percent > 50 %}bg-yellow-500{% else %}bg-cyan-500{% endif %}"
+                 style="width: {{ vitals.disk_percent }}%"></div>
+        </div>
+    </div>
+
+    <!-- Media Drive -->
+    <div>
+        <div class="flex justify-between text-sm mb-1">
+            <span class="text-gray-400">Media Drive</span>
+            <span class="text-white font-medium">{{ vitals.media_used_gb | round(method="ceil", precision=1) }} / {{ vitals.media_total_gb | round(method="ceil", precision=1) }} GB</span>
+        </div>
+        <div class="w-full h-2 bg-gray-800 rounded-full overflow-hidden">
+            <div class="h-full rounded-full transition-all duration-500
+                {% if vitals.media_percent > 80 %}bg-red-500{% elif vitals.media_percent > 50 %}bg-yellow-500{% else %}bg-cyan-500{% endif %}"
+                 style="width: {{ vitals.media_percent }}%"></div>
+        </div>
+    </div>
+</div>
