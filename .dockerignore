@@ -2,3 +2,5 @@ target/
 .git/
 docs/
 *.md
+.env
+.env.*

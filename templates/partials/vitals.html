@@ -76,6 +76,30 @@
         <span class="text-xs text-nexus-muted mt-2">Disk</span>
         <span class="text-[10px] text-nexus-muted font-mono">{{ vitals.disk_used_gb | round(method="ceil", precision=0) }}/{{ vitals.disk_total_gb | round(method="ceil", precision=0) }}G</span>
     </div>
+
+    <!-- Media Ring -->
+    <div class="flex flex-col items-center">
+        <div class="relative w-[80px] h-[80px]">
+            <svg class="ring-gauge w-full h-full" viewBox="0 0 80 80">
+                <circle class="ring-track" cx="40" cy="40" r="34" />
+                <circle class="ring-value" cx="40" cy="40" r="34"
+                    stroke="url(#grad-rose)"
+                    stroke-dasharray="{{ 213.6 }}"
+                    stroke-dashoffset="{{ 213.6 - (vitals.media_percent / 100.0 * 213.6) }}" />
+                <defs>
+                    <linearGradient id="grad-rose" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#FB7185" />
+                        <stop offset="100%" stop-color="#E11D48" />
+                    </linearGradient>
+                </defs>
+            </svg>
+            <div class="absolute inset-0 flex items-center justify-center">
+                <span class="font-mono text-lg font-medium text-white">{{ vitals.media_percent | round(method="ceil", precision=0) }}%</span>
+            </div>
+        </div>
+        <span class="text-xs text-nexus-muted mt-2">Media</span>
+        <span class="text-[10px] text-nexus-muted font-mono">{{ vitals.media_used_gb | round(method="ceil", precision=0) }}/{{ vitals.media_total_gb | round(method="ceil", precision=0) }}G</span>
+    </div>
 </div>
 
 <!-- Network Section -->

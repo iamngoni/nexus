@@ -50,20 +50,24 @@ pub async fn get_downloads() -> DownloadStats {
 }
 
 async fn fetch_torrents() -> Result<DownloadStats, Box<dyn std::error::Error>> {
+    let qbit_url = std::env::var("QBIT_URL").unwrap_or_else(|_| "http://localhost:8080".into());
+    let qbit_user = std::env::var("QBIT_USERNAME").unwrap_or_else(|_| "admin".into());
+    let qbit_pass = std::env::var("QBIT_PASSWORD").unwrap_or_else(|_| "".into());
+
     let client = Client::builder()
         .cookie_store(true)
         .timeout(std::time::Duration::from_secs(5))
         .build()?;
 
     // Login
-    client.post("http://localhost:8080/api/v2/auth/login")
+    client.post(format!("{}/api/v2/auth/login", qbit_url))
         .header("Content-Type", "application/x-www-form-urlencoded")
-        .body("username=ngonidzashe&password=simple")
+        .body(format!("username={}&password={}", qbit_user, qbit_pass))
         .send()
         .await?;
 
     // Get transfer info for global speeds
-    let transfer_resp = client.get("http://localhost:8080/api/v2/transfer/info")
+    let transfer_resp = client.get(format!("{}/api/v2/transfer/info", qbit_url))
         .send().await?;
     let transfer: serde_json::Value = transfer_resp.json().await?;
 
@@ -72,7 +76,7 @@ async fn fetch_torrents() -> Result<DownloadStats, Box<dyn std::error::Error>> {
 
     // Get torrent list
     let torrents_resp = client
-        .get("http://localhost:8080/api/v2/torrents/info?filter=all&sort=added_on&reverse=true&limit=20")
+        .get(format!("{}/api/v2/torrents/info?filter=all&sort=added_on&reverse=true&limit=20", qbit_url))
         .send().await?;
     let torrents_json: Vec<serde_json::Value> = torrents_resp.json().await?;
 

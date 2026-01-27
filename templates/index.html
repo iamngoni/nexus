@@ -155,7 +155,7 @@
             </div>
 
             <!-- System Vitals Card -->
-            <div class="w-[420px] shrink-0 bg-nexus-card border border-nexus-card-border rounded-card p-5"
+            <div class="w-[520px] shrink-0 bg-nexus-card border border-nexus-card-border rounded-card p-5"
                  id="vitals-card"
                  hx-get="/htmx/vitals"
                  hx-trigger="every 10s"
@@ -216,6 +216,18 @@
         </div>
     </main>
 
+    <!-- Log Modal -->
+    <div id="log-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center">
+        <!-- Backdrop -->
+        <div class="absolute inset-0 bg-black/70 backdrop-blur-sm"
+             onclick="document.getElementById('log-modal').classList.add('hidden')"></div>
+        <!-- Modal content -->
+        <div id="log-modal-content"
+             class="relative z-10 w-[90vw] max-w-[900px] max-h-[80vh] bg-nexus-card border border-nexus-card-border rounded-card p-5 overflow-hidden">
+            <p class="text-xs text-nexus-muted">Loading logs...</p>
+        </div>
+    </div>
+
     <!-- Re-initialize lucide icons after HTMX swaps -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -223,6 +235,33 @@
         });
         document.body.addEventListener('htmx:afterSwap', () => {
             lucide.createIcons();
+        });
+
+        function openLogs(container, name) {
+            const modal = document.getElementById('log-modal');
+            const content = document.getElementById('log-modal-content');
+            content.innerHTML = '<p class="text-xs text-nexus-muted">Loading logs for ' + name + '...</p>';
+            modal.classList.remove('hidden');
+
+            fetch('/htmx/logs/' + container)
+                .then(r => r.text())
+                .then(html => {
+                    content.innerHTML = html;
+                    lucide.createIcons();
+                    // Auto-scroll to bottom
+                    const pre = content.querySelector('pre');
+                    if (pre) pre.scrollTop = pre.scrollHeight;
+                })
+                .catch(err => {
+                    content.innerHTML = '<p class="text-xs text-nexus-error">Failed to load logs: ' + err + '</p>';
+                });
+        }
+
+        // Close modal on Escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                document.getElementById('log-modal').classList.add('hidden');
+            }
         });
     </script>
 </body>

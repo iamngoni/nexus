@@ -11,6 +11,7 @@ pub struct ServiceStatus {
     pub icon: String,
     pub lucide_icon: String,
     pub category: String,
+    pub container: String,
     pub status: String,       // "up", "down", "unknown"
     pub response_ms: u64,
     pub last_checked: String,
@@ -30,6 +31,7 @@ impl ServiceChecker {
                 icon: s.icon.clone(),
                 lucide_icon: s.lucide_icon.clone(),
                 category: s.category.clone(),
+                container: s.container.clone(),
                 status: "unknown".into(),
                 response_ms: 0,
                 last_checked: "never".into(),

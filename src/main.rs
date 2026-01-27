@@ -6,6 +6,7 @@ use actix_files as fs;
 use tera::Tera;
 use std::sync::Arc;
 use tokio::sync::RwLock;
+use std::collections::HashSet;
 
 use models::config::AppConfig;
 use services::health::ServiceChecker;
@@ -21,10 +22,13 @@ async fn index(data: web::Data<AppState>) -> HttpResponse {
     let statuses = checker.get_statuses();
     let online_count = statuses.iter().filter(|s| s.status == "up").count();
 
+    let vitals = services::system::get_vitals().await;
+
     let mut ctx = tera::Context::new();
     ctx.insert("services", &statuses);
     ctx.insert("online_count", &online_count);
     ctx.insert("total_count", &statuses.len());
+    ctx.insert("vitals", &vitals);
 
     // Greeting based on time of day
     let hour = chrono::Local::now().format("%H").to_string().parse::<u32>().unwrap_or(12);
@@ -34,7 +38,9 @@ async fn index(data: web::Data<AppState>) -> HttpResponse {
         18..=22 => "Good evening",
         _ => "Good night",
     };
+    let user_name = std::env::var("DASHBOARD_USER").unwrap_or_else(|_| "Admin".into());
     ctx.insert("greeting", greeting);
+    ctx.insert("user_name", &user_name);
     ctx.insert("time", &chrono::Local::now().format("%H:%M").to_string());
     ctx.insert("date", &chrono::Local::now().format("%a %d %b").to_string());
 
@@ -118,7 +124,9 @@ async fn htmx_datetime(data: web::Data<AppState>) -> HttpResponse {
         18..=22 => "Good evening",
         _ => "Good night",
     };
+    let user_name = std::env::var("DASHBOARD_USER").unwrap_or_else(|_| "Admin".into());
     ctx.insert("greeting", greeting);
+    ctx.insert("user_name", &user_name);
     ctx.insert("time", &chrono::Local::now().format("%H:%M").to_string());
     ctx.insert("date", &chrono::Local::now().format("%a %d %b").to_string());
 
@@ -126,6 +134,52 @@ async fn htmx_datetime(data: web::Data<AppState>) -> HttpResponse {
         Ok(body) => HttpResponse::Ok().content_type("text/html").body(body),
         Err(e) => HttpResponse::InternalServerError().body(format!("Partial error: {}", e)),
     }
+}
+
+/// HTMX partial: container logs in modal
+async fn htmx_logs(data: web::Data<AppState>, path: web::Path<String>) -> HttpResponse {
+    let container = path.into_inner();
+
+    // Allowlist: only containers we know about
+    let allowed: HashSet<String> = data.config.services.iter()
+        .map(|s| s.container.clone()).collect();
+    if !allowed.contains(&container) {
+        return HttpResponse::BadRequest().body("Unknown container");
+    }
+
+    let output = tokio::process::Command::new("docker")
+        .args(["logs", "--tail", "150", &container])
+        .output().await;
+
+    let logs = match output {
+        Ok(o) => {
+            let stdout = String::from_utf8_lossy(&o.stdout);
+            let stderr = String::from_utf8_lossy(&o.stderr);
+            let combined = if stdout.is_empty() { stderr.to_string() } else { format!("{}{}", stdout, stderr) };
+            if combined.is_empty() { "No logs available.".to_string() } else { combined }
+        }
+        Err(e) => format!("Failed to fetch logs: {}", e),
+    };
+
+    // Escape HTML
+    let escaped = logs
+        .replace('&', "&amp;")
+        .replace('<', "&lt;")
+        .replace('>', "&gt;");
+
+    let html = format!(
+        r#"<div class="flex items-center justify-between mb-4">
+    <h2 class="text-base font-semibold text-white">{} — Logs</h2>
+    <button onclick="document.getElementById('log-modal').classList.add('hidden')"
+            class="p-1.5 rounded-lg hover:bg-nexus-tile transition-colors">
+        <i data-lucide="x" class="w-4 h-4 text-nexus-muted"></i>
+    </button>
+</div>
+<pre class="text-[11px] font-mono text-gray-300 bg-nexus-tile border border-nexus-tile-border rounded-tile p-4 overflow-auto max-h-[60vh] whitespace-pre-wrap break-all leading-relaxed">{}</pre>"#,
+        container, escaped
+    );
+
+    HttpResponse::Ok().content_type("text/html").body(html)
 }
 
 /// HTMX partial: activity feed
@@ -144,7 +198,8 @@ async fn htmx_activity(data: web::Data<AppState>) -> HttpResponse {
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    println!("🚀 Nexus starting on http://0.0.0.0:3000");
+    let port = std::env::var("PORT").unwrap_or_else(|_| "3000".into());
+    println!("🚀 Nexus starting on http://0.0.0.0:{}", port);
 
     let config = AppConfig::load();
     let checker = Arc::new(RwLock::new(ServiceChecker::new(&config.services)));
@@ -182,8 +237,9 @@ async fn main() -> std::io::Result<()> {
             .route("/htmx/storage", web::get().to(htmx_storage))
             .route("/htmx/datetime", web::get().to(htmx_datetime))
             .route("/htmx/activity", web::get().to(htmx_activity))
+            .route("/htmx/logs/{container}", web::get().to(htmx_logs))
     })
-    .bind("0.0.0.0:3000")?
+    .bind(format!("0.0.0.0:{}", port))?
     .run()
     .await
 }

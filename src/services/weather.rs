@@ -19,8 +19,9 @@ pub async fn get_weather() -> WeatherInfo {
         Ok(w) => w,
         Err(e) => {
             eprintln!("Weather API error: {}", e);
+            let location = std::env::var("WEATHER_LOCATION").unwrap_or_else(|_| "London".into());
             WeatherInfo {
-                location: "Sandton".into(),
+                location,
                 temp_c: "--".into(),
                 condition: "Unavailable".into(),
                 high_c: "--".into(),
@@ -52,12 +53,14 @@ fn weather_to_lucide_icon(code: i64) -> &'static str {
 }
 
 async fn fetch_weather() -> Result<WeatherInfo, Box<dyn std::error::Error>> {
+    let location = std::env::var("WEATHER_LOCATION").unwrap_or_else(|_| "London".into());
+
     let client = Client::builder()
         .timeout(std::time::Duration::from_secs(10))
         .build()?;
 
     let raw = client
-        .get("https://wttr.in/Sandton?format=j1")
+        .get(format!("https://wttr.in/{}?format=j1", location))
         .header("User-Agent", "nexus-dashboard/1.0")
         .send()
         .await?;
@@ -86,7 +89,7 @@ async fn fetch_weather() -> Result<WeatherInfo, Box<dyn std::error::Error>> {
         .unwrap_or(0);
 
     Ok(WeatherInfo {
-        location: "Sandton".into(),
+        location,
         temp_c: temp,
         condition,
         high_c: high,

@@ -1,5 +1,5 @@
 # Stage 1: Build
-FROM rust:1.87-slim AS builder
+FROM rust:1.88-slim AS builder
 
 WORKDIR /app
 
@@ -19,7 +19,8 @@ RUN touch src/main.rs && cargo build --release
 # Stage 2: Runtime
 FROM debian:bookworm-slim
 
-RUN apt-get update && apt-get install -y ca-certificates procps && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y ca-certificates procps curl && rm -rf /var/lib/apt/lists/* \
+    && curl -fsSL https://download.docker.com/linux/static/stable/x86_64/docker-27.5.1.tgz | tar xz --strip-components=1 -C /usr/local/bin docker/docker
 
 WORKDIR /app
 
