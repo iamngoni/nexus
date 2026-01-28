@@ -45,6 +45,14 @@ impl AppConfig {
                     container: "radarr".into(),
                 },
                 ServiceDef {
+                    name: "Lidarr".into(),
+                    url: format!("http://{}:8686", ip),
+                    icon: "🎵".into(),
+                    lucide_icon: "music".into(),
+                    category: "Media".into(),
+                    container: "lidarr".into(),
+                },
+                ServiceDef {
                     name: "Bazarr".into(),
                     url: format!("http://{}:6767", ip),
                     icon: "💬".into(),

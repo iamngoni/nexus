@@ -20,9 +20,11 @@ pub struct MediaQueue {
 pub async fn get_media_queue() -> MediaQueue {
     let (sonarr_items, sonarr_total) = fetch_queue("sonarr").await;
     let (radarr_items, radarr_total) = fetch_queue("radarr").await;
+    let (lidarr_items, lidarr_total) = fetch_queue("lidarr").await;
 
     let mut items = sonarr_items;
     items.extend(radarr_items);
+    items.extend(lidarr_items);
 
     // Sort: downloading first, then by progress ascending
     items.sort_by(|a, b| {
@@ -35,7 +37,7 @@ pub async fn get_media_queue() -> MediaQueue {
     items.truncate(10);
 
     MediaQueue {
-        total_count: sonarr_total + radarr_total,
+        total_count: sonarr_total + radarr_total + lidarr_total,
         items,
     }
 }
@@ -50,6 +52,10 @@ async fn fetch_queue(source: &str) -> (Vec<QueueItem>, usize) {
             std::env::var("RADARR_URL").unwrap_or_else(|_| "http://localhost:7878".into()),
             std::env::var("RADARR_API_KEY").unwrap_or_default(),
         ),
+        "lidarr" => (
+            std::env::var("LIDARR_URL").unwrap_or_else(|_| "http://localhost:8686".into()),
+            std::env::var("LIDARR_API_KEY").unwrap_or_default(),
+        ),
         _ => return (vec![], 0),
     };
 
@@ -61,8 +67,9 @@ async fn fetch_queue(source: &str) -> (Vec<QueueItem>, usize) {
         Err(_) => return (vec![], 0),
     };
 
+    let api_version = if source == "lidarr" { "v1" } else { "v3" };
     let resp = match client
-        .get(format!("{}/api/v3/queue?page=1&pageSize=10", url))
+        .get(format!("{}/api/{}/queue?page=1&pageSize=10", url, api_version))
         .header("X-Api-Key", &key)
         .send()
         .await
@@ -144,9 +151,11 @@ pub async fn get_upcoming() -> UpcomingReleases {
 
     let sonarr = fetch_sonarr_calendar(&today, &end).await;
     let radarr = fetch_radarr_calendar(&today, &end).await;
+    let lidarr = fetch_lidarr_calendar(&today, &end).await;
 
     let mut items = sonarr;
     items.extend(radarr);
+    items.extend(lidarr);
 
     // Sort by air date
     items.sort_by(|a, b| a.air_date.cmp(&b.air_date));
@@ -286,6 +295,73 @@ async fn fetch_radarr_calendar(start: &str, end: &str) -> Vec<CalendarItem> {
                 episode_info: String::new(),
                 network: studio,
                 source: "radarr".into(),
+            }
+        })
+        .collect()
+}
+
+async fn fetch_lidarr_calendar(start: &str, end: &str) -> Vec<CalendarItem> {
+    let url = std::env::var("LIDARR_URL").unwrap_or_else(|_| "http://localhost:8686".into());
+    let key = std::env::var("LIDARR_API_KEY").unwrap_or_default();
+
+    let client = match Client::builder()
+        .timeout(std::time::Duration::from_secs(5))
+        .build()
+    {
+        Ok(c) => c,
+        Err(_) => return vec![],
+    };
+
+    let resp = match client
+        .get(format!(
+            "{}/api/v1/calendar?start={}&end={}&includeArtist=true",
+            url, start, end
+        ))
+        .header("X-Api-Key", &key)
+        .send()
+        .await
+    {
+        Ok(r) => r,
+        Err(e) => {
+            eprintln!("Lidarr calendar error: {}", e);
+            return vec![];
+        }
+    };
+
+    let json: Vec<serde_json::Value> = match resp.json().await {
+        Ok(j) => j,
+        Err(_) => return vec![],
+    };
+
+    json.iter()
+        .map(|album| {
+            let title = album["title"].as_str().unwrap_or("Unknown").to_string();
+            let artist = &album["artist"];
+            let artist_name = artist["artistName"].as_str().unwrap_or("").to_string();
+
+            let air_date_raw = album["releaseDate"].as_str().unwrap_or("");
+            let air_date = if let Ok(dt) = chrono::DateTime::parse_from_rfc3339(air_date_raw) {
+                dt.with_timezone(&chrono::Local)
+                    .format("%a %d %b")
+                    .to_string()
+            } else {
+                "TBA".to_string()
+            };
+
+            let display_title = if !artist_name.is_empty() {
+                format!("{} — {}", artist_name, title)
+            } else {
+                title.clone()
+            };
+
+            CalendarItem {
+                title,
+                series_title: artist_name,
+                display_title,
+                air_date,
+                episode_info: String::new(),
+                network: String::new(),
+                source: "lidarr".into(),
             }
         })
         .collect()
