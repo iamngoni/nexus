@@ -85,6 +85,14 @@ impl AppConfig {
                     container: "qbittorrent".into(),
                 },
                 ServiceDef {
+                    name: "MeTube".into(),
+                    url: format!("http://{}:8081", ip),
+                    icon: "📹".into(),
+                    lucide_icon: "youtube".into(),
+                    category: "Downloads".into(),
+                    container: "metube".into(),
+                },
+                ServiceDef {
                     name: "Home Assistant".into(),
                     url: format!("http://{}:8123", ip),
                     icon: "🏠".into(),
