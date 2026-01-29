@@ -68,8 +68,8 @@ async fn fetch_container_stats() -> Result<ContainerResources, Box<dyn std::erro
             )
     });
 
-    // Limit to top 8
-    containers.truncate(8);
+    // Limit to top 20
+    containers.truncate(20);
 
     Ok(ContainerResources { containers })
 }
