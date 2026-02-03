@@ -217,10 +217,11 @@ fn parse_log_line(line: &str) -> Option<LogEntry> {
     Some(LogEntry { time, level, level_lower, subsystem, message })
 }
 
-/// HTMX partial: clawdbot live logs
-async fn htmx_clawdbot_logs(data: web::Data<AppState>) -> HttpResponse {
-    let today = chrono::Local::now().format("%Y-%m-%d").to_string();
-    let log_path = format!("/tmp/clawdbot/clawdbot-{}.log", today);
+/// HTMX partial: OpenClaw live logs
+async fn htmx_openclaw_logs(data: web::Data<AppState>) -> HttpResponse {
+    // OpenClaw logs at ~/.openclaw/logs/gateway.log (single file, not date-rotated)
+    let home = std::env::var("HOME").unwrap_or_else(|_| "/root".into());
+    let log_path = format!("{}/.openclaw/logs/gateway.log", home);
 
     let entries: Vec<LogEntry> = match tokio::fs::read_to_string(&log_path).await {
         Ok(text) => {
@@ -239,7 +240,7 @@ async fn htmx_clawdbot_logs(data: web::Data<AppState>) -> HttpResponse {
     ctx.insert("entries", &entries);
     ctx.insert("has_logs", &has_logs);
 
-    match data.tera.render("partials/clawdbot-logs.html", &ctx) {
+    match data.tera.render("partials/openclaw-logs.html", &ctx) {
         Ok(body) => HttpResponse::Ok().content_type("text/html").body(body),
         Err(e) => {
             HttpResponse::InternalServerError().body(format!("Template error: {}", e))
@@ -548,7 +549,7 @@ async fn main() -> std::io::Result<()> {
             .route("/htmx/datetime", web::get().to(htmx_datetime))
             .route("/htmx/activity", web::get().to(htmx_activity))
             .route("/htmx/logs/{container}", web::get().to(htmx_logs))
-            .route("/htmx/clawdbot-logs", web::get().to(htmx_clawdbot_logs))
+            .route("/htmx/openclaw-logs", web::get().to(htmx_openclaw_logs))
             // New HTMX partials
             .route("/htmx/media-stats", web::get().to(htmx_media_stats))
             .route("/htmx/media-queue", web::get().to(htmx_media_queue))

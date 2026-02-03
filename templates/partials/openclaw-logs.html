@@ -7,7 +7,7 @@
     </div>
     <i data-lucide="terminal" class="w-4 h-4 text-nexus-muted"></i>
 </div>
-<div id="clawdbot-log-container"
+<div id="openclaw-log-container"
      class="font-mono text-[11px] bg-nexus-tile border border-nexus-tile-border rounded-tile overflow-auto max-h-[300px] leading-relaxed">
     {% if has_logs %}
     {% for entry in entries %}
@@ -42,5 +42,5 @@
     {% endif %}
 </div>
 <script>
-(function(){ var el = document.getElementById('clawdbot-log-container'); if(el) el.scrollTop = el.scrollHeight; })();
+(function(){ var el = document.getElementById('openclaw-log-container'); if(el) el.scrollTop = el.scrollHeight; })();
 </script>
