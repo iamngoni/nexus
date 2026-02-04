@@ -101,6 +101,14 @@ impl AppConfig {
                     container: "metube".into(),
                 },
                 ServiceDef {
+                    name: "JDownloader".into(),
+                    url: format!("http://{}:5800", ip),
+                    icon: "📦".into(),
+                    lucide_icon: "download-cloud".into(),
+                    category: "Downloads".into(),
+                    container: "jdownloader".into(),
+                },
+                ServiceDef {
                     name: "Home Assistant".into(),
                     url: format!("http://{}:8123", ip),
                     icon: "🏠".into(),
