@@ -9,6 +9,12 @@ pub struct CpuTemp {
 }
 
 #[derive(Debug, Clone, Serialize)]
+pub struct DockerStats {
+    pub running: u32,
+    pub total: u32,
+}
+
+#[derive(Debug, Clone, Serialize)]
 pub struct SystemVitals {
     pub cpu_percent: f64,
     pub mem_used_gb: f64,
@@ -21,6 +27,9 @@ pub struct SystemVitals {
     pub media_total_gb: f64,
     pub media_percent: f64,
     pub cpu_temp: Option<CpuTemp>,
+    pub uptime: String,
+    pub docker: DockerStats,
+    pub tdarr_queue: u32,
 }
 
 pub async fn get_vitals() -> SystemVitals {
@@ -29,6 +38,9 @@ pub async fn get_vitals() -> SystemVitals {
     let (disk_used, disk_total) = get_disk("/").await;
     let (media_used, media_total) = get_disk("/mnt/media").await;
     let cpu_temp = get_cpu_temp().await;
+    let uptime = get_uptime().await;
+    let docker = get_docker_stats().await;
+    let tdarr_queue = get_tdarr_queue().await;
 
     SystemVitals {
         cpu_percent: cpu,
@@ -42,6 +54,9 @@ pub async fn get_vitals() -> SystemVitals {
         media_total_gb: media_total,
         media_percent: if media_total > 0.0 { (media_used / media_total) * 100.0 } else { 0.0 },
         cpu_temp,
+        uptime,
+        docker,
+        tdarr_queue,
     }
 }
 
@@ -149,4 +164,69 @@ async fn get_cpu_temp() -> Option<CpuTemp> {
     }
 
     None
+}
+
+async fn get_uptime() -> String {
+    let output = Command::new("sh")
+        .arg("-c")
+        .arg("uptime -p | sed 's/up //'")
+        .output()
+        .await;
+    match output {
+        Ok(o) => {
+            let s = String::from_utf8_lossy(&o.stdout).trim().to_string();
+            if s.is_empty() { "unknown".into() } else { s }
+        }
+        Err(_) => "unknown".into(),
+    }
+}
+
+async fn get_docker_stats() -> DockerStats {
+    let output = Command::new("sh")
+        .arg("-c")
+        .arg("docker ps -a --format '{{.State}}' 2>/dev/null")
+        .output()
+        .await;
+    match output {
+        Ok(o) => {
+            let s = String::from_utf8_lossy(&o.stdout);
+            let lines: Vec<&str> = s.trim().lines().collect();
+            let total = lines.len() as u32;
+            let running = lines.iter().filter(|l| *l == &"running").count() as u32;
+            DockerStats { running, total }
+        }
+        Err(_) => DockerStats { running: 0, total: 0 },
+    }
+}
+
+async fn get_tdarr_queue() -> u32 {
+    // Query Tdarr API for pending transcode count
+    let client = reqwest::Client::builder()
+        .timeout(std::time::Duration::from_secs(3))
+        .build();
+    
+    if let Ok(client) = client {
+        let url = "http://localhost:8266/api/v2/cruddb";
+        let body = r#"{"data":{"collection":"StatisticsJSONDB","mode":"getAll"}}"#;
+        
+        if let Ok(resp) = client
+            .post(url)
+            .header("Content-Type", "application/json")
+            .body(body)
+            .send()
+            .await
+        {
+            if let Ok(json) = resp.json::<serde_json::Value>().await {
+                if let Some(arr) = json.as_array() {
+                    if let Some(stats) = arr.first() {
+                        // table1Count = transcode queue
+                        return stats.get("table1Count")
+                            .and_then(|v| v.as_u64())
+                            .unwrap_or(0) as u32;
+                    }
+                }
+            }
+        }
+    }
+    0
 }
