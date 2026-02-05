@@ -77,12 +77,12 @@ impl AppConfig {
                     container: "jellyseerr".into(),
                 },
                 ServiceDef {
-                    name: "Tdarr".into(),
-                    url: format!("http://{}:8265", ip),
-                    icon: "🔄".into(),
-                    lucide_icon: "repeat".into(),
+                    name: "Kompressor".into(),
+                    url: format!("http://{}:8078", ip),
+                    icon: "🗜️".into(),
+                    lucide_icon: "shrink".into(),
                     category: "Media".into(),
-                    container: "tdarr".into(),
+                    container: "kompressor".into(),
                 },
                 ServiceDef {
                     name: "qBittorrent".into(),
