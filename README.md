@@ -1,6 +1,6 @@
 # Nexus — Homelab Dashboard
 
-A sleek, dark-themed homelab dashboard built with Rust (Actix-web), HTMX, and Tailwind CSS. Live-refreshing widgets for service health, system vitals, downloads, weather, and more.
+A light, operations-focused home server dashboard built with Rust (Actix-web), HTMX, and Tailwind CSS. Live-refreshing widgets for service health, system vitals, downloads, weather, and more.
 
 ![Nexus Dashboard](https://img.shields.io/badge/Rust-1.88+-orange?logo=rust) ![License](https://img.shields.io/badge/license-MIT-blue)
 
@@ -12,14 +12,14 @@ A sleek, dark-themed homelab dashboard built with Rust (Actix-web), HTMX, and Ta
 - **Weather** — Current conditions, high/low temps, rain chance, and wind speed
 - **Container Logs** — View Docker container logs directly from the dashboard
 - **Live Refresh** — All widgets auto-refresh via HTMX (10–60s intervals)
-- **Dark Theme** — Custom color palette with glow effects and gradient accents
+- **Light Operations UI** — Left-rail navigation, compact live summaries, and a practical neutral palette
 
 ## Stack
 
 - **Backend:** Rust + Actix-web
 - **Frontend:** HTMX + Tailwind CSS (CDN) + Lucide Icons
 - **Templating:** Tera
-- **Fonts:** Inter + DM Mono
+- **Fonts:** Instrument Sans + IBM Plex Mono
 
 ## Quick Start
 

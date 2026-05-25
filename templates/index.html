@@ -1,15 +1,15 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nexus — Homelab Dashboard</title>
+    <title>Nexus — Home Server</title>
     <script src="https://unpkg.com/htmx.org@2.0.4"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -17,25 +17,25 @@
                 extend: {
                     colors: {
                         nexus: {
-                            bg: '#0A0A0F',
-                            card: '#111118',
-                            'card-border': '#1A1A24',
-                            tile: '#16161E',
-                            'tile-border': '#1F1F2A',
-                            nav: '#0E0E14',
-                            accent: '#00D4AA',
-                            secondary: '#A78BFA',
-                            tertiary: '#F59E0B',
-                            error: '#EF4444',
-                            muted: '#6B6B76',
+                            bg: '#F3F5EF',
+                            card: '#FCFDF8',
+                            'card-border': '#D9E2D6',
+                            tile: '#F2F6EF',
+                            'tile-border': '#DDE6DA',
+                            nav: '#FBFCF7',
+                            accent: '#0A9277',
+                            secondary: '#315F9F',
+                            tertiary: '#B86F16',
+                            error: '#C9404A',
+                            muted: '#6D7A70',
                         }
                     },
                     fontFamily: {
-                        sans: ['Inter', 'system-ui', 'sans-serif'],
-                        mono: ['"DM Mono"', 'monospace'],
+                        sans: ['"Instrument Sans"', 'system-ui', 'sans-serif'],
+                        mono: ['"IBM Plex Mono"', 'monospace'],
                     },
                     borderRadius: {
-                        'card': '12px',
+                        'card': '10px',
                         'tile': '8px',
                     }
                 }
@@ -43,10 +43,51 @@
         }
     </script>
     <style>
+        :root {
+            --paper: #F3F5EF;
+            --paper-warm: #EBF0E7;
+            --surface: #FCFDF8;
+            --surface-strong: #FFFFFF;
+            --tile: #F2F6EF;
+            --border: #D9E2D6;
+            --border-strong: #BCC9BA;
+            --ink: #17231E;
+            --ink-soft: #33423B;
+            --muted: #6D7A70;
+            --faint: #9AA69C;
+            --accent: #0A9277;
+            --secondary: #315F9F;
+            --tertiary: #B86F16;
+            --error: #C9404A;
+            --shadow: 0 18px 50px rgba(45, 61, 49, 0.10);
+            --shadow-soft: 0 8px 24px rgba(45, 61, 49, 0.07);
+        }
+        * {
+            box-sizing: border-box;
+        }
+        html {
+            scroll-behavior: smooth;
+        }
         body {
-            background: #0A0A0F;
-            font-family: 'Inter', system-ui, sans-serif;
+            background:
+                radial-gradient(circle at top left, rgba(10, 146, 119, 0.10), transparent 30vw),
+                radial-gradient(circle at 80% 0%, rgba(184, 111, 22, 0.08), transparent 28vw),
+                linear-gradient(180deg, #F8FAF4 0%, var(--paper) 44%, #EDF2EA 100%);
+            color: var(--ink);
+            font-family: 'Instrument Sans', system-ui, sans-serif;
             overflow-x: hidden;
+        }
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            pointer-events: none;
+            background-image:
+                linear-gradient(rgba(23, 35, 30, 0.035) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(23, 35, 30, 0.035) 1px, transparent 1px);
+            background-size: 32px 32px;
+            mask-image: linear-gradient(to bottom, rgba(0,0,0,0.65), transparent 58%);
         }
         /* Prevent horizontal overflow on mobile */
         main, .bg-nexus-card {
@@ -54,23 +95,86 @@
             overflow-x: hidden;
         }
         .font-mono {
-            font-family: 'DM Mono', monospace;
+            font-family: 'IBM Plex Mono', monospace;
+        }
+        .text-white,
+        .text-gray-200 {
+            color: var(--ink) !important;
+        }
+        .text-gray-300 {
+            color: var(--ink-soft) !important;
+        }
+        .text-gray-400,
+        .text-gray-500,
+        .text-gray-600 {
+            color: var(--muted) !important;
+        }
+        .text-blue-400 {
+            color: #2767AA !important;
+        }
+        .text-purple-400 {
+            color: #6D55A6 !important;
+        }
+        .text-pink-400 {
+            color: #B8477C !important;
+        }
+        .text-red-300,
+        .text-red-400 {
+            color: var(--error) !important;
+        }
+        .text-amber-300,
+        .text-amber-400 {
+            color: var(--tertiary) !important;
+        }
+        .bg-nexus-card {
+            background: color-mix(in srgb, var(--surface) 92%, transparent) !important;
+            border-color: var(--border) !important;
+            box-shadow: var(--shadow-soft);
+        }
+        .bg-nexus-tile {
+            background: var(--tile) !important;
+        }
+        .border-nexus-card-border,
+        .border-nexus-tile-border {
+            border-color: var(--border) !important;
+        }
+        .rounded-card {
+            border-radius: 10px !important;
+        }
+        .rounded-tile {
+            border-radius: 8px !important;
+        }
+        [style*="00D4AA"] {
+            background: rgba(10, 146, 119, 0.11) !important;
+            color: var(--accent) !important;
+        }
+        [style*="A78BFA"] {
+            background: rgba(49, 95, 159, 0.10) !important;
+            color: var(--secondary) !important;
+        }
+        [style*="EF4444"] {
+            background: rgba(201, 64, 74, 0.10) !important;
+            color: var(--error) !important;
+        }
+        [style*="6B6B76"] {
+            background: rgba(109, 122, 112, 0.12) !important;
+            color: var(--muted) !important;
         }
         /* Status dot glows */
         .dot-up {
-            background: #00D4AA;
-            box-shadow: 0 0 6px #00D4AA, 0 0 12px rgba(0,212,170,0.3);
+            background: var(--accent);
+            box-shadow: 0 0 0 3px rgba(10, 146, 119, 0.12);
         }
         .dot-down {
-            background: #EF4444;
-            box-shadow: 0 0 6px #EF4444, 0 0 12px rgba(239,68,68,0.3);
+            background: var(--error);
+            box-shadow: 0 0 0 3px rgba(201, 64, 74, 0.12);
         }
         .dot-degraded {
-            background: #F59E0B;
-            box-shadow: 0 0 6px #F59E0B;
+            background: var(--tertiary);
+            box-shadow: 0 0 0 3px rgba(184, 111, 22, 0.12);
         }
         .dot-unknown {
-            background: #6B6B76;
+            background: var(--faint);
         }
         /* Ring gauge */
         .ring-gauge {
@@ -78,7 +182,7 @@
         }
         .ring-track {
             fill: none;
-            stroke: #1F1F2A;
+            stroke: #E1E8DE;
             stroke-width: 6;
         }
         .ring-value {
@@ -89,229 +193,650 @@
         }
         /* Progress bar gradient */
         .progress-teal {
-            background: linear-gradient(90deg, #00D4AA, #0891B2);
+            background: linear-gradient(90deg, #0A9277, #2F8FAA);
         }
         .progress-purple {
-            background: linear-gradient(90deg, #A78BFA, #7C3AED);
+            background: linear-gradient(90deg, #315F9F, #6D55A6);
         }
         .progress-amber {
-            background: linear-gradient(90deg, #F59E0B, #D97706);
+            background: linear-gradient(90deg, #D99024, #B86F16);
         }
         /* Scrollbar */
         .custom-scroll::-webkit-scrollbar {
-            width: 4px;
+            width: 6px;
         }
         .custom-scroll::-webkit-scrollbar-track {
             background: transparent;
         }
         .custom-scroll::-webkit-scrollbar-thumb {
-            background: #1F1F2A;
-            border-radius: 2px;
+            background: #C8D3C4;
+            border-radius: 999px;
         }
         /* Service tile hover */
         .service-tile {
             transition: all 0.2s ease;
         }
         .service-tile:hover {
-            border-color: rgba(0, 212, 170, 0.3);
-            background: #1A1A24;
+            border-color: rgba(10, 146, 119, 0.30);
+            background: #FFFFFF !important;
+            box-shadow: var(--shadow-soft);
+            transform: translateY(-1px);
         }
         /* Lucide icons initial state */
         [data-lucide] {
             width: 18px;
             height: 18px;
         }
+        .app-shell {
+            display: grid;
+            grid-template-columns: 232px minmax(0, 1fr);
+            min-height: 100vh;
+        }
+        .app-sidebar {
+            position: sticky;
+            top: 0;
+            align-self: start;
+            height: 100vh;
+            padding: 22px 18px;
+            background: rgba(251, 252, 247, 0.82);
+            border-right: 1px solid var(--border);
+            backdrop-filter: blur(18px);
+            display: flex;
+            flex-direction: column;
+            gap: 26px;
+        }
+        .brand-lockup {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-height: 42px;
+        }
+        .brand-mark {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            display: grid;
+            place-items: center;
+            color: #FFFFFF;
+            font-weight: 800;
+            letter-spacing: -0.04em;
+            background: linear-gradient(135deg, #0A9277, #2F8FAA);
+            box-shadow: 0 10px 24px rgba(10, 146, 119, 0.22);
+        }
+        .brand-word {
+            color: var(--ink);
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: 0.24em;
+        }
+        .nav-list {
+            display: grid;
+            gap: 6px;
+        }
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 11px;
+            border-radius: 9px;
+            color: var(--muted);
+            font-size: 13px;
+            font-weight: 650;
+            transition: background 160ms ease, color 160ms ease, transform 160ms ease;
+        }
+        .nav-item:hover,
+        .nav-item.active {
+            background: #FFFFFF;
+            color: var(--ink);
+            box-shadow: 0 1px 0 var(--border), 0 10px 22px rgba(45, 61, 49, 0.07);
+        }
+        .nav-item:hover {
+            transform: translateX(2px);
+        }
+        .sidebar-footer {
+            margin-top: auto;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 13px;
+            background: rgba(255, 255, 255, 0.66);
+        }
+        .sidebar-footer span {
+            display: block;
+            color: var(--muted);
+            font-size: 11px;
+            font-weight: 650;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+        .sidebar-footer strong {
+            display: block;
+            margin-top: 5px;
+            color: var(--ink);
+            font-size: 22px;
+            line-height: 1;
+        }
+        .app-main {
+            min-width: 0;
+        }
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 30;
+            min-height: 66px;
+            padding: 14px clamp(18px, 3vw, 34px);
+            border-bottom: 1px solid var(--border);
+            background: rgba(248, 250, 244, 0.78);
+            backdrop-filter: blur(18px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+        .topbar-title {
+            display: flex;
+            align-items: baseline;
+            gap: 12px;
+            min-width: 0;
+        }
+        .topbar-title h1 {
+            color: var(--ink);
+            font-size: clamp(24px, 3vw, 36px);
+            font-weight: 760;
+            letter-spacing: -0.035em;
+            line-height: 1;
+        }
+        .topbar-title span {
+            color: var(--muted);
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 12px;
+        }
+        .datetime-cluster {
+            color: var(--muted);
+        }
+        .content-wrap {
+            padding: clamp(18px, 3vw, 34px);
+        }
+        .briefing {
+            display: grid;
+            grid-template-columns: minmax(220px, 0.9fr) minmax(0, 1.5fr);
+            gap: 18px;
+            align-items: stretch;
+            margin-bottom: 18px;
+        }
+        .briefing-lead {
+            border: 1px solid var(--border-strong);
+            border-radius: 14px;
+            background:
+                linear-gradient(135deg, rgba(255, 255, 255, 0.86), rgba(241, 247, 238, 0.80)),
+                radial-gradient(circle at top right, rgba(10, 146, 119, 0.12), transparent 50%);
+            padding: 18px;
+            box-shadow: var(--shadow-soft);
+        }
+        .briefing-lead h2 {
+            color: var(--ink);
+            font-size: clamp(26px, 3vw, 42px);
+            line-height: 0.94;
+            font-weight: 780;
+            letter-spacing: -0.045em;
+        }
+        .briefing-lead p {
+            color: var(--muted);
+            margin-top: 13px;
+            font-size: 13px;
+            max-width: 34ch;
+        }
+        .briefing-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 12px;
+        }
+        .metric-card {
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.78);
+            padding: 14px;
+            min-height: 112px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 8px 20px rgba(45, 61, 49, 0.05);
+        }
+        .metric-card span {
+            color: var(--muted);
+            font-size: 11px;
+            font-weight: 760;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+        .metric-card strong {
+            color: var(--ink);
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: clamp(24px, 3vw, 34px);
+            line-height: 1;
+            letter-spacing: -0.05em;
+        }
+        .metric-card small {
+            color: var(--muted);
+            font-size: 12px;
+        }
+        .metric-card.alert {
+            border-color: rgba(201, 64, 74, 0.36);
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.84), rgba(252, 240, 239, 0.70));
+        }
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(12, minmax(0, 1fr));
+            gap: 16px;
+            align-items: start;
+        }
+        .panel {
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: rgba(252, 253, 248, 0.92);
+            padding: 18px;
+            box-shadow: var(--shadow-soft);
+        }
+        .panel-services {
+            grid-column: span 5;
+        }
+        .panel-vitals {
+            grid-column: span 7;
+        }
+        .panel-third {
+            grid-column: span 4;
+        }
+        .panel-wide {
+            grid-column: span 8;
+        }
+        .panel-full {
+            grid-column: 1 / -1;
+        }
+        #journal-card,
+        #openclaw-logs-card {
+            background: linear-gradient(180deg, #FFFFFF, #F6F9F3) !important;
+            border-color: var(--border) !important;
+            color: var(--ink);
+        }
+        #journal-card .text-white,
+        #journal-card .text-gray-300,
+        #openclaw-logs-card .text-white,
+        #openclaw-logs-card .text-gray-300 {
+            color: var(--ink) !important;
+        }
+        #journal-card .text-gray-500,
+        #journal-card .text-gray-600,
+        #openclaw-logs-card .text-gray-500,
+        #openclaw-logs-card .text-gray-600 {
+            color: var(--muted) !important;
+        }
+        #journal-card .bg-nexus-tile,
+        #openclaw-logs-card .bg-nexus-tile {
+            background: #F4F7F0 !important;
+            border-color: var(--border) !important;
+        }
+        #log-modal-content {
+            box-shadow: var(--shadow);
+        }
+        @media (max-width: 1180px) {
+            .briefing {
+                grid-template-columns: 1fr;
+            }
+            .panel-services,
+            .panel-vitals,
+            .panel-third,
+            .panel-wide {
+                grid-column: 1 / -1;
+            }
+        }
+        @media (max-width: 920px) {
+            .app-shell {
+                display: block;
+            }
+            .app-sidebar {
+                position: sticky;
+                top: 0;
+                z-index: 40;
+                height: auto;
+                padding: 12px 14px;
+                gap: 12px;
+            }
+            .brand-lockup {
+                min-height: 34px;
+            }
+            .brand-mark {
+                width: 32px;
+                height: 32px;
+            }
+            .nav-list {
+                display: grid;
+                grid-template-columns: repeat(6, minmax(42px, 1fr));
+                gap: 8px;
+                overflow: visible;
+                padding-bottom: 4px;
+            }
+            .nav-item {
+                justify-content: center;
+                min-width: 0;
+                white-space: nowrap;
+                font-size: 0;
+                gap: 0;
+                min-height: 42px;
+                padding: 10px;
+            }
+            .nav-item [data-lucide] {
+                width: 18px;
+                height: 18px;
+            }
+            .sidebar-footer {
+                display: none;
+            }
+            .topbar {
+                position: relative;
+                align-items: flex-start;
+                flex-direction: column;
+            }
+            .content-wrap {
+                padding: 16px;
+            }
+            .briefing-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            .panel {
+                grid-column: 1 / -1 !important;
+                padding: 16px;
+            }
+        }
+        @media (max-width: 560px) {
+            .nav-list {
+                display: grid !important;
+                width: 100%;
+                grid-template-columns: repeat(6, minmax(42px, 1fr));
+                gap: 8px;
+                overflow: visible;
+            }
+            .nav-item {
+                justify-content: center;
+                width: 100%;
+                padding: 9px 8px;
+                font-size: 0;
+                gap: 0;
+            }
+            .nav-item:hover {
+                transform: none;
+            }
+            .briefing-grid {
+                grid-template-columns: 1fr;
+            }
+            .topbar-title {
+                display: block;
+            }
+            .topbar-title span {
+                display: block;
+                margin-top: 6px;
+            }
+        }
     </style>
 </head>
-<body class="min-h-screen text-gray-200">
+<body class="min-h-screen">
 
-    <!-- Top Navigation -->
-    <nav class="bg-[#0E0E14] border-b border-nexus-card-border px-4 md:px-6 py-3 md:py-3.5 flex items-center justify-between">
-        <div class="flex items-center gap-2 md:gap-3">
-            <!-- Logo -->
-            <div class="w-8 h-8 md:w-9 md:h-9 rounded-lg flex items-center justify-center font-mono font-bold text-base md:text-lg"
-                 style="background: linear-gradient(135deg, #00D4AA, #0891B2);">
-                N
+    <div class="app-shell">
+        <!-- Left navigation -->
+        <aside class="app-sidebar">
+            <div class="brand-lockup">
+                <div class="brand-mark">N</div>
+                <div class="brand-word font-mono">NEXUS</div>
             </div>
-            <span class="font-mono text-xs md:text-sm font-medium text-white tracking-[3px] md:tracking-[4px] uppercase">NEXUS</span>
+
+            <nav class="nav-list" aria-label="Dashboard sections">
+                <a class="nav-item active" href="#overview" aria-label="Overview" title="Overview">
+                    <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+                    Overview
+                </a>
+                <a class="nav-item" href="#services-card" aria-label="Services" title="Services">
+                    <i data-lucide="server" class="w-4 h-4"></i>
+                    Services
+                </a>
+                <a class="nav-item" href="#media-queue-card" aria-label="Media" title="Media">
+                    <i data-lucide="clapperboard" class="w-4 h-4"></i>
+                    Media
+                </a>
+                <a class="nav-item" href="#downloads-card" aria-label="Downloads" title="Downloads">
+                    <i data-lucide="download" class="w-4 h-4"></i>
+                    Downloads
+                </a>
+                <a class="nav-item" href="#storage-card" aria-label="Storage" title="Storage">
+                    <i data-lucide="hard-drive" class="w-4 h-4"></i>
+                    Storage
+                </a>
+                <a class="nav-item" href="#journal-card" aria-label="Activity" title="Activity">
+                    <i data-lucide="activity" class="w-4 h-4"></i>
+                    Activity
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <span>Service health</span>
+                <strong class="font-mono">{{ online_count }}/{{ total_count }}</strong>
+            </div>
+        </aside>
+
+        <div class="app-main">
+            <!-- Top bar -->
+            <header class="topbar">
+                <div class="topbar-title">
+                    <h1>Overview</h1>
+                    <span>Home server</span>
+                </div>
+
+                <div class="datetime-cluster flex items-center gap-3 md:gap-6"
+                     id="datetime-area"
+                     hx-get="/htmx/datetime"
+                     hx-trigger="every 30s"
+                     hx-swap="innerHTML">
+                    {% include "partials/datetime.html" %}
+                </div>
+            </header>
+
+            <!-- Main Dashboard -->
+            <main class="content-wrap" id="overview">
+                <section class="briefing" aria-label="Current server state">
+                    <div class="briefing-lead">
+                        <h2>Home server</h2>
+                        <p>{{ greeting }}, {{ user_name }}.</p>
+                    </div>
+                    <div class="briefing-grid">
+                        <div class="metric-card">
+                            <span>Services</span>
+                            <strong>{{ online_count }}/{{ total_count }}</strong>
+                            <small>online</small>
+                        </div>
+                        <div class="metric-card">
+                            <span>CPU</span>
+                            <strong>{{ vitals.cpu_percent | round(method="ceil", precision=0) }}%</strong>
+                            <small>{% if vitals.cpu_temp %}{{ vitals.cpu_temp.temp_c | round(method="ceil", precision=0) }}°C{% else %}temperature unavailable{% endif %}</small>
+                        </div>
+                        <div class="metric-card {% if vitals.media_percent >= 95.0 %}alert{% endif %}">
+                            <span>Media</span>
+                            <strong>{{ vitals.media_percent | round(method="ceil", precision=0) }}%</strong>
+                            <small>{{ vitals.media_used_gb | round(method="ceil", precision=0) }}/{{ vitals.media_total_gb | round(method="ceil", precision=0) }}G</small>
+                        </div>
+                        <div class="metric-card">
+                            <span>Docker</span>
+                            <strong>{{ vitals.docker.running }}/{{ vitals.docker.total }}</strong>
+                            <small>containers</small>
+                        </div>
+                    </div>
+                </section>
+
+                <div class="dashboard-grid">
+
+                    <!-- Services -->
+                    <div class="panel panel-services bg-nexus-card border border-nexus-card-border rounded-card"
+                         id="services-card"
+                         hx-get="/htmx/services"
+                         hx-trigger="every 30s"
+                         hx-swap="innerHTML">
+                        {% include "partials/services.html" %}
+                    </div>
+
+                    <!-- System Vitals -->
+                    <div class="panel panel-vitals bg-nexus-card border border-nexus-card-border rounded-card"
+                         id="vitals-card"
+                         hx-get="/htmx/vitals"
+                         hx-trigger="every 10s"
+                         hx-swap="innerHTML">
+                        {% include "partials/vitals.html" %}
+                    </div>
+
+                    <!-- Downloads -->
+                    <div class="panel panel-third bg-nexus-card border border-nexus-card-border rounded-card"
+                         id="downloads-card"
+                         hx-get="/htmx/downloads"
+                         hx-trigger="load, every 15s"
+                         hx-swap="innerHTML">
+                        <div class="flex items-center justify-between mb-4">
+                            <h2 class="text-sm font-semibold text-white">Downloads</h2>
+                        </div>
+                        <p class="text-xs text-nexus-muted">Loading...</p>
+                    </div>
+
+                    <!-- Media Queue -->
+                    <div class="panel panel-third bg-nexus-card border border-nexus-card-border rounded-card"
+                         id="media-queue-card"
+                         hx-get="/htmx/media-queue"
+                         hx-trigger="load, every 30s"
+                         hx-swap="innerHTML">
+                        <div class="flex items-center justify-between mb-4">
+                            <h2 class="text-sm font-semibold text-white">Media Queue</h2>
+                        </div>
+                        <p class="text-xs text-nexus-muted">Loading...</p>
+                    </div>
+
+                    <!-- Upcoming Releases -->
+                    <div class="panel panel-third bg-nexus-card border border-nexus-card-border rounded-card"
+                         id="upcoming-card"
+                         hx-get="/htmx/upcoming"
+                         hx-trigger="load, every 600s"
+                         hx-swap="innerHTML">
+                        <div class="flex items-center justify-between mb-4">
+                            <h2 class="text-sm font-semibold text-white">Upcoming</h2>
+                        </div>
+                        <p class="text-xs text-nexus-muted">Loading...</p>
+                    </div>
+
+                    <!-- Media Library Stats -->
+                    <div class="panel panel-third bg-nexus-card border border-nexus-card-border rounded-card"
+                         id="media-stats-card"
+                         hx-get="/htmx/media-stats"
+                         hx-trigger="load, every 300s"
+                         hx-swap="innerHTML">
+                        <div class="flex items-center justify-between mb-4">
+                            <h2 class="text-sm font-semibold text-white">Media Library</h2>
+                        </div>
+                        <p class="text-xs text-nexus-muted">Loading...</p>
+                    </div>
+
+                    <!-- Recently Added -->
+                    <div class="panel panel-third bg-nexus-card border border-nexus-card-border rounded-card"
+                         id="recently-added-card"
+                         hx-get="/htmx/recently-added"
+                         hx-trigger="load, every 300s"
+                         hx-swap="innerHTML">
+                        <div class="flex items-center justify-between mb-4">
+                            <h2 class="text-sm font-semibold text-white">Recently Added</h2>
+                        </div>
+                        <p class="text-xs text-nexus-muted">Loading...</p>
+                    </div>
+
+                    <!-- Weather -->
+                    <div class="panel panel-third bg-nexus-card border border-nexus-card-border rounded-card"
+                         id="weather-card"
+                         hx-get="/htmx/weather"
+                         hx-trigger="load, every 600s"
+                         hx-swap="innerHTML">
+                        <div class="flex items-center justify-between mb-4">
+                            <h2 class="text-sm font-semibold text-white">Weather</h2>
+                        </div>
+                        <p class="text-xs text-nexus-muted">Loading...</p>
+                    </div>
+
+                    <!-- Container Resources -->
+                    <div class="panel panel-third bg-nexus-card border border-nexus-card-border rounded-card"
+                         id="container-resources-card"
+                         hx-get="/htmx/container-resources"
+                         hx-trigger="load, every 30s"
+                         hx-swap="innerHTML">
+                        <div class="flex items-center justify-between mb-4">
+                            <h2 class="text-sm font-semibold text-white">Container Resources</h2>
+                        </div>
+                        <p class="text-xs text-nexus-muted">Loading...</p>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="panel panel-third bg-nexus-card border border-nexus-card-border rounded-card"
+                         id="quick-actions-card">
+                        {% include "partials/quick-actions.html" %}
+                    </div>
+
+                    <!-- Speedtest -->
+                    <div class="panel panel-third bg-nexus-card border border-nexus-card-border rounded-card"
+                         id="speedtest-card"
+                         hx-get="/htmx/speedtest"
+                         hx-trigger="load, every 300s"
+                         hx-swap="innerHTML">
+                        <div class="flex items-center justify-between mb-4">
+                            <h2 class="text-sm font-semibold text-white">Speedtest</h2>
+                        </div>
+                        <p class="text-xs text-nexus-muted">Loading...</p>
+                    </div>
+
+                    <!-- Storage -->
+                    <div class="panel panel-third bg-nexus-card border border-nexus-card-border rounded-card"
+                         id="storage-card"
+                         hx-get="/htmx/storage"
+                         hx-trigger="load, every 60s"
+                         hx-swap="innerHTML">
+                        <div class="flex items-center justify-between mb-4">
+                            <h2 class="text-sm font-semibold text-white">Storage</h2>
+                        </div>
+                        <p class="text-xs text-nexus-muted">Loading...</p>
+                    </div>
+
+                    <!-- System Journal -->
+                    <div class="panel panel-wide bg-nexus-card border border-nexus-card-border rounded-card"
+                         id="journal-card"
+                         hx-get="/htmx/journal"
+                         hx-trigger="load, every 60s"
+                         hx-swap="innerHTML">
+                        <div class="flex items-center justify-between mb-4">
+                            <h2 class="text-sm font-semibold text-white">System Journal</h2>
+                        </div>
+                        <p class="text-xs text-nexus-muted">Loading...</p>
+                    </div>
+
+                    <!-- OpenClaw Live Logs -->
+                    <div class="panel panel-full bg-nexus-card border border-nexus-card-border rounded-card"
+                         id="openclaw-logs-card"
+                         hx-get="/htmx/openclaw-logs"
+                         hx-trigger="load, every 10s"
+                         hx-swap="innerHTML">
+                        <div class="flex items-center justify-between mb-3">
+                            <h2 class="text-sm font-semibold text-white">Son of Anton</h2>
+                        </div>
+                        <p class="text-xs text-nexus-muted">Loading logs...</p>
+                    </div>
+                </div>
+            </main>
         </div>
-
-        <!-- Right: Greeting + DateTime + Bell -->
-        <div class="flex items-center gap-3 md:gap-6"
-             id="datetime-area"
-             hx-get="/htmx/datetime"
-             hx-trigger="every 30s"
-             hx-swap="innerHTML">
-            {% include "partials/datetime.html" %}
-        </div>
-    </nav>
-
-    <!-- Main Dashboard -->
-    <main class="p-3 md:p-5">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-3 md:gap-5">
-
-            <!-- Services (wider on desktop) -->
-            <div class="lg:col-span-3 bg-nexus-card border border-nexus-card-border rounded-card p-4 md:p-5"
-                 id="services-card"
-                 hx-get="/htmx/services"
-                 hx-trigger="every 30s"
-                 hx-swap="innerHTML">
-                {% include "partials/services.html" %}
-            </div>
-
-            <!-- System Vitals -->
-            <div class="lg:col-span-3 bg-nexus-card border border-nexus-card-border rounded-card p-4 md:p-5"
-                 id="vitals-card"
-                 hx-get="/htmx/vitals"
-                 hx-trigger="every 10s"
-                 hx-swap="innerHTML">
-                {% include "partials/vitals.html" %}
-            </div>
-
-            <!-- Downloads -->
-            <div class="lg:col-span-2 bg-nexus-card border border-nexus-card-border rounded-card p-4 md:p-5"
-                 id="downloads-card"
-                 hx-get="/htmx/downloads"
-                 hx-trigger="every 15s"
-                 hx-swap="innerHTML">
-                <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-sm font-semibold text-white">Downloads</h2>
-                </div>
-                <p class="text-xs text-nexus-muted">Loading...</p>
-            </div>
-
-            <!-- Media Queue -->
-            <div class="lg:col-span-2 bg-nexus-card border border-nexus-card-border rounded-card p-4 md:p-5"
-                 id="media-queue-card"
-                 hx-get="/htmx/media-queue"
-                 hx-trigger="load, every 30s"
-                 hx-swap="innerHTML">
-                <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-sm font-semibold text-white">Media Queue</h2>
-                </div>
-                <p class="text-xs text-nexus-muted">Loading...</p>
-            </div>
-
-            <!-- Upcoming Releases -->
-            <div class="lg:col-span-2 bg-nexus-card border border-nexus-card-border rounded-card p-4 md:p-5"
-                 id="upcoming-card"
-                 hx-get="/htmx/upcoming"
-                 hx-trigger="load, every 600s"
-                 hx-swap="innerHTML">
-                <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-sm font-semibold text-white">Upcoming</h2>
-                </div>
-                <p class="text-xs text-nexus-muted">Loading...</p>
-            </div>
-
-            <!-- Media Library Stats -->
-            <div class="lg:col-span-2 bg-nexus-card border border-nexus-card-border rounded-card p-4 md:p-5"
-                 id="media-stats-card"
-                 hx-get="/htmx/media-stats"
-                 hx-trigger="load, every 300s"
-                 hx-swap="innerHTML">
-                <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-sm font-semibold text-white">Media Library</h2>
-                </div>
-                <p class="text-xs text-nexus-muted">Loading...</p>
-            </div>
-
-            <!-- Recently Added -->
-            <div class="lg:col-span-2 bg-nexus-card border border-nexus-card-border rounded-card p-4 md:p-5"
-                 id="recently-added-card"
-                 hx-get="/htmx/recently-added"
-                 hx-trigger="load, every 300s"
-                 hx-swap="innerHTML">
-                <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-sm font-semibold text-white">Recently Added</h2>
-                </div>
-                <p class="text-xs text-nexus-muted">Loading...</p>
-            </div>
-
-            <!-- Weather -->
-            <div class="lg:col-span-2 bg-nexus-card border border-nexus-card-border rounded-card p-4 md:p-5"
-                 id="weather-card"
-                 hx-get="/htmx/weather"
-                 hx-trigger="load, every 600s"
-                 hx-swap="innerHTML">
-                <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-sm font-semibold text-white">Weather</h2>
-                </div>
-                <p class="text-xs text-nexus-muted">Loading...</p>
-            </div>
-
-            <!-- Container Resources -->
-            <div class="lg:col-span-2 bg-nexus-card border border-nexus-card-border rounded-card p-4 md:p-5"
-                 id="container-resources-card"
-                 hx-get="/htmx/container-resources"
-                 hx-trigger="load, every 30s"
-                 hx-swap="innerHTML">
-                <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-sm font-semibold text-white">Container Resources</h2>
-                </div>
-                <p class="text-xs text-nexus-muted">Loading...</p>
-            </div>
-
-            <!-- Quick Actions -->
-            <div class="lg:col-span-2 bg-nexus-card border border-nexus-card-border rounded-card p-4 md:p-5"
-                 id="quick-actions-card">
-                {% include "partials/quick-actions.html" %}
-            </div>
-
-            <!-- Speedtest -->
-            <div class="lg:col-span-2 bg-nexus-card border border-nexus-card-border rounded-card p-4 md:p-5"
-                 id="speedtest-card"
-                 hx-get="/htmx/speedtest"
-                 hx-trigger="load, every 300s"
-                 hx-swap="innerHTML">
-                <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-sm font-semibold text-white">Speedtest</h2>
-                </div>
-                <p class="text-xs text-nexus-muted">Loading...</p>
-            </div>
-
-            <!-- Storage -->
-            <div class="lg:col-span-2 bg-nexus-card border border-nexus-card-border rounded-card p-4 md:p-5"
-                 id="storage-card"
-                 hx-get="/htmx/storage"
-                 hx-trigger="every 60s"
-                 hx-swap="innerHTML">
-                <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-sm font-semibold text-white">Storage</h2>
-                </div>
-                <p class="text-xs text-nexus-muted">Loading...</p>
-            </div>
-
-            <!-- System Journal -->
-            <div class="lg:col-span-4 bg-nexus-card border border-nexus-card-border rounded-card p-4 md:p-5"
-                 id="journal-card"
-                 hx-get="/htmx/journal"
-                 hx-trigger="load, every 60s"
-                 hx-swap="innerHTML">
-                <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-sm font-semibold text-white">System Journal</h2>
-                </div>
-                <p class="text-xs text-nexus-muted">Loading...</p>
-            </div>
-
-            <!-- OpenClaw Live Logs (full width) -->
-            <div class="md:col-span-2 lg:col-span-6 bg-nexus-card border border-nexus-card-border rounded-card p-4 md:p-5"
-                 id="openclaw-logs-card"
-                 hx-get="/htmx/openclaw-logs"
-                 hx-trigger="load, every 10s"
-                 hx-swap="innerHTML">
-                <div class="flex items-center justify-between mb-3">
-                    <h2 class="text-sm font-semibold text-white">Son of Anton</h2>
-                </div>
-                <p class="text-xs text-nexus-muted">Loading logs...</p>
-            </div>
-        </div>
-    </main>
+    </div>
 
     <!-- Log Modal -->
     <div id="log-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center">
         <!-- Backdrop -->
-        <div class="absolute inset-0 bg-black/70 backdrop-blur-sm"
+        <div class="absolute inset-0 bg-slate-900/30 backdrop-blur-sm"
              onclick="document.getElementById('log-modal').classList.add('hidden')"></div>
         <!-- Modal content -->
         <div id="log-modal-content"

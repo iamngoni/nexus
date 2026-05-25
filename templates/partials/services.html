@@ -16,7 +16,7 @@
     <div class="service-tile relative bg-nexus-tile border border-nexus-tile-border rounded-tile p-3 flex flex-col items-center gap-2 group"
          id="svc-{{ loop.index }}">
         <!-- Mobile: 3-dot menu trigger -->
-        <button class="md:hidden absolute top-1.5 right-1.5 p-1 rounded text-nexus-muted active:text-white z-10"
+        <button class="md:hidden absolute top-1.5 right-1.5 p-1 rounded text-nexus-muted active:text-nexus-accent z-10"
                 onclick="toggleSvcMenu(event, 'svc-menu-{{ loop.index }}')">
             <i data-lucide="ellipsis-vertical" class="w-3.5 h-3.5"></i>
         </button>
@@ -45,8 +45,8 @@
         </div>
 
         <!-- Desktop: Hover overlay (hidden on mobile) -->
-        <div class="hidden md:flex absolute inset-0 bg-[#0A0A0F]/90 rounded-tile flex-col items-center justify-center gap-2
-                    opacity-0 group-hover:opacity-100 transition-opacity duration-150">
+        <div class="hidden md:flex absolute inset-0 bg-white/95 rounded-tile flex-col items-center justify-center gap-2
+                    opacity-0 group-hover:opacity-100 transition-opacity duration-150 shadow-sm">
             <a href="{{ svc.url }}" target="_blank" rel="noopener"
                class="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-nexus-accent/15 hover:bg-nexus-accent/25 text-nexus-accent transition-colors">
                 <i data-lucide="external-link" class="w-3 h-3"></i>
@@ -61,7 +61,7 @@
 
         <!-- Mobile: Tap menu overlay -->
         <div id="svc-menu-{{ loop.index }}"
-             class="svc-menu md:hidden hidden absolute inset-0 bg-[#0A0A0F]/95 rounded-tile flex flex-col items-center justify-center gap-2 z-20">
+             class="svc-menu md:hidden hidden absolute inset-0 bg-white/95 rounded-tile flex flex-col items-center justify-center gap-2 z-20 shadow-sm">
             <a href="{{ svc.url }}" target="_blank" rel="noopener"
                class="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-nexus-accent/15 active:bg-nexus-accent/25 text-nexus-accent">
                 <i data-lucide="external-link" class="w-3 h-3"></i>
