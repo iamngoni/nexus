@@ -220,8 +220,11 @@ fn parse_log_line(line: &str) -> Option<LogEntry> {
 /// HTMX partial: OpenClaw live logs
 async fn htmx_openclaw_logs(data: web::Data<AppState>) -> HttpResponse {
     // OpenClaw logs at ~/.openclaw/logs/gateway.log (single file, not date-rotated)
-    let home = std::env::var("HOME").unwrap_or_else(|_| "/root".into());
-    let log_path = format!("{}/.openclaw/logs/gateway.log", home);
+    let log_path = std::env::var("OPENCLAW_LOG_PATH")
+        .unwrap_or_else(|_| {
+            let home = std::env::var("HOME").unwrap_or_else(|_| "/root".into());
+            format!("{}/.openclaw/logs/gateway.log", home)
+        });
 
     let entries: Vec<LogEntry> = match tokio::fs::read_to_string(&log_path).await {
         Ok(text) => {
