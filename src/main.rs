@@ -50,6 +50,10 @@ async fn index(data: web::Data<AppState>) -> HttpResponse {
     }
 }
 
+async fn healthz() -> HttpResponse {
+    HttpResponse::Ok().body("ok")
+}
+
 /// HTMX partial: refreshes service status tiles
 async fn htmx_services(data: web::Data<AppState>) -> HttpResponse {
     let checker = data.checker.read().await;
@@ -543,6 +547,7 @@ async fn main() -> std::io::Result<()> {
             .service(fs::Files::new("/static", "./static").show_files_listing())
             // Page
             .route("/", web::get().to(index))
+            .route("/healthz", web::get().to(healthz))
             // Existing HTMX partials
             .route("/htmx/services", web::get().to(htmx_services))
             .route("/htmx/vitals", web::get().to(htmx_vitals))

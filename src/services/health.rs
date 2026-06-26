@@ -49,7 +49,7 @@ impl ServiceChecker {
 
         for s in services {
             let start = Instant::now();
-            let result = client.get(&s.url).send().await;
+            let result = client.get(&s.health_url).send().await;
             let elapsed = start.elapsed().as_millis() as u64;
 
             let status = match result {
